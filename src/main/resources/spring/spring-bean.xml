@@ -23,10 +23,22 @@
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
     
     
-    <!-- Common Bean injection Begin-->
-
+	<bean id ="taskExecutor"  
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" >
+	    <property name ="corePoolSize" value ="5" />
+	    <property name ="keepAliveSeconds" value ="300" />
+	    <property name ="maxPoolSize" value ="10" />
+	    <property name ="queueCapacity" value ="25" />
+	</bean>
 	
-	<!-- Common Bean injection End-->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+    <bean id="cacheAspect" class="com.wxgame.zqdn.utils.CacheAspect"></bean>
+    <aop:config>
+    	<aop:aspect ref="cacheAspect">
+    		<aop:pointcut expression="@annotation(com.wxgame.zqdn.utils.CheckCache)" id="cachePoints"/>
+    		<aop:around method="around" pointcut-ref="cachePoints"/>
+    	</aop:aspect>
+    </aop:config>
 	
 	
 </beans>

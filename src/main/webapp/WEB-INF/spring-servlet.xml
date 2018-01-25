@@ -23,12 +23,28 @@
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
     ">
  
- 	<mvc:annotation-driven />
+ 	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<bean
+				class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" >
+			</bean>
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/plain;charset=utf-8</value>
+						<value>text/html;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
  	
  	<context:property-placeholder location="classpath:jdbc.properties,classpath:flags.properties"/>  
  	
 
     <context:component-scan base-package="com.wxgame.zqdn.controller"/>
+    <context:component-scan base-package="com.wxgame.zqdn.service"/>
+    <context:component-scan base-package="com.wxgame.zqdn.dao"/>
    
     
     <import resource="classpath:spring/spring-database.xml"/>

@@ -23,5 +23,24 @@
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
     ">
     
+    <bean id="zqdnDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${zqdn.driverClass}"></property>
+		<property name="jdbcUrl" value="${zqdn.url}"></property>
+		<property name="user" value="${zqdn.user}"></property>
+		<property name="password" value="${zqdn.password}"></property>
+		<property name="acquireIncrement" value="${zqdn.acquireIncrement}"></property>
+		<property name="initialPoolSize" value="${zqdn.initialPoolSize}"></property>
+		<property name="maxPoolSize" value="${zqdn.maxPoolSize}"></property>
+		<property name="minPoolSize" value="${zqdn.minPoolSize}"></property>
+		<property name="idleConnectionTestPeriod" value="${zqdn.idleConnectionTestPeriod}"></property>
+		<property name="maxIdleTime" value="${zqdn.maxIdleTime}"></property>
+	</bean>
+	
+	<bean id="zqdnJdbcTemplate"
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="zqdnDataSource" />
+	</bean>
+    
      
 </beans>
