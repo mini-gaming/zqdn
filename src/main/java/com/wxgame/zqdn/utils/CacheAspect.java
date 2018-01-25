@@ -53,9 +53,11 @@ public class CacheAspect {
 			@SuppressWarnings("rawtypes")
 			Class returnClazz = m.getReturnType();
 			Object resultObject = JSON.parseObject(result, returnClazz);
+			logger.info("Query from cache");
 			return resultObject;
 		}
 		Object dbResult = point.proceed(args);
+		logger.info("Query from DB");
 		if(dbResult != null){
 			taskExecutor.submit(new SetCacheJob(cacheService, fullKey, JSON.toJSONString(dbResult)));
 		}
