@@ -16,7 +16,7 @@
 
 	<dependencies>
 
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
@@ -100,7 +100,7 @@
 			<artifactId>aspectjweaver</artifactId>
 			<version>1.6.8</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
@@ -111,23 +111,23 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${org.slf4j-version}</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-log4j12</artifactId>
-		    <version>${org.slf4j-version}</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
 		</dependency>
 
 		<dependency>
@@ -147,7 +147,7 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
@@ -159,64 +159,64 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.36</version>
 		</dependency>
-		
+
 
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.13</version>
-		</dependency>	
+		</dependency>
 
 	</dependencies>
-	
-	 <profiles>  
-        <profile>  
-            <!-- 本地开发环境 -->  
-            <id>dev</id>  
-            <properties>  
-                <profiles.active>dev</profiles.active>
-                <profiles.war>zqdn</profiles.war>
-            </properties>  
-            <activation>  
-                <activeByDefault>true</activeByDefault>  
-            </activation>  
-        </profile>  
- 
-        <profile>  
-            <!-- 生产环境 -->  
-            <id>prod</id>  
-            <properties>  
-                <profiles.active>prod</profiles.active>
-                <profiles.war>zqdn</profiles.war>
-            </properties>  
-        </profile>
-        
-	 </profiles>
-    
+
+	<profiles>
+		<profile>
+			<!-- 本地开发环境 -->
+			<id>dev</id>
+			<properties>
+				<profiles.active>dev</profiles.active>
+				<profiles.war>zqdn</profiles.war>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+
+		<profile>
+			<!-- 生产环境 -->
+			<id>prod</id>
+			<properties>
+				<profiles.active>prod</profiles.active>
+				<profiles.war>zqdn</profiles.war>
+			</properties>
+		</profile>
+
+	</profiles>
+
 	<build>
-	 	<resources>  
-	        <resource>  
-	            <directory>src/main/resources</directory>  
-	            <!-- 资源根目录排除各环境的配置，使用单独的资源目录来指定 -->  
-	            <excludes>
-	                <exclude>prod/*</exclude>
-	                <exclude>dev/*</exclude>
-	            </excludes>  
-	        </resource>  
-	        <resource>  
-	            <directory>src/main/resources/${profiles.active}</directory>  
-	        </resource>  
-    	</resources> 
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 资源根目录排除各环境的配置，使用单独的资源目录来指定 -->
+				<excludes>
+					<exclude>prod/*</exclude>
+					<exclude>dev/*</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources/${profiles.active}</directory>
+			</resource>
+		</resources>
 		<finalName>${profiles.war}</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
