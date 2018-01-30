@@ -10,8 +10,6 @@
  
  	<beans:bean id="myBasicAuthenticationEntryPoint" class="com.wxgame.zqdn.filter.MyBasicAuthenticationEntryPoint"></beans:bean>
     <http auto-config="false" use-expressions="true">
-        <intercept-url pattern="/hrd/**" access="hasRole('ROLE_HRD')" />
-        <intercept-url pattern="/yysr/**" access="hasRole('ROLE_YYSR')" />
         <intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')" />
         <http-basic entry-point-ref="myBasicAuthenticationEntryPoint" />
     </http>
@@ -19,9 +17,7 @@
     <authentication-manager>
         <authentication-provider>
             <user-service>
-                <user name="hrd" password="admin" authorities="ROLE_HRD" />
-                <user name="yysr" password="admin" authorities="ROLE_YYSR" />
-                <user name="admin" password="admin" authorities="ROLE_ADMIN" />
+                <user name="${httpSecurityName}" password="${httpSecurityPassword}" authorities="ROLE_ADMIN" />
             </user-service>
         </authentication-provider>
     </authentication-manager>

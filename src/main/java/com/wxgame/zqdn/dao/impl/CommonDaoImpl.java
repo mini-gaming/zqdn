@@ -105,4 +105,10 @@ public class CommonDaoImpl implements CommonDao {
 		return delete(zqdnJdbcTemplate, sql, params);
 	}
 
+	@Override
+	public int update(String sql, Map<String, Object> params) {
+		
+		return zqdnJdbcTemplate.update(sql, params);
+	}
+
 }
