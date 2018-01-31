@@ -51,14 +51,15 @@ CREATE TABLE `zqdn_user_rltnshp_ntwk` (
 
 
 DROP TABLE IF EXISTS `zqdn_game_login_instnc`;
-CREATE TABLE `zqdn_game_login_instnc` (
+CREATE TABLE `zqdn_game_login_instnc`(
+
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `GAME_ID` SMALLINT NOT NULL,
   `OPEN_ID` varchar(255) NOT NULL,
   `LOGIN_TIME` datetime NOT NULL,
   `LOGOUT_TIME` datetime NULL,
   `CRE_TS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `UPD_TS` timestamp NULL
+  `UPD_TS` timestamp NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
