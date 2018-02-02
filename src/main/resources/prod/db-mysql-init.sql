@@ -34,9 +34,10 @@ CREATE TABLE `zqdn_user_game_map` (
   `CRE_TS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UPD_TS` timestamp NULL,
   PRIMARY KEY (`ID`),
-  INDEX `GAME_SCORE` (`GAME_ID`,`MAX_SCORE`),
-  INDEX `GAME_RC_SCORE` (`GAME_ID`,`RCMND_OPEN_ID`,`MAX_SCORE`)
+  UNIQUE KEY `OPEN_ID_GAME_ID` (`OPEN_ID`,`GAME_ID`),
+  INDEX `GAME_SCORE` (`GAME_ID`,`MAX_SCORE`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `zqdn_user_rltnshp_ntwk`;
 CREATE TABLE `zqdn_user_rltnshp_ntwk` (
@@ -82,7 +83,8 @@ DROP TABLE IF EXISTS `zqdn_game_meta`;
 CREATE TABLE `zqdn_game_meta` (
   `ID` SMALLINT NOT NULL,
   `GAME_NAME` varchar(100) NOT NULL,
+  `MAX_SCORE` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `GAME_NAME`(`GAME_NAME`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-
+insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (1,'华容道',10000);

@@ -1,5 +1,6 @@
 package com.wxgame.zqdn.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +31,15 @@ public class GameInfoServiceImpl implements GameInfoService {
 		String sql = PropUtils.getSql("GameInfoService.recordGameInstance");
 		try {
 			commonDao.insert(sql, data);
-			int maxScore = queryMaxScore(data);
+			List<Integer> scores = queryMaxScore(data);
+			int personalMax = scores.get(0);
+			int gameMax = scores.get(1);
 			int currScore = (int) data.get("score");
-			if(currScore>maxScore){
-				updateMaxScore(data);
+			if(currScore>personalMax){
+				updatePersonalMaxScore(data);
+			}
+			if(currScore>gameMax){
+				updateGameMaxScore(data);
 			}
 			return BasicHttpResponse.success();
 		} catch (Exception e) {
@@ -43,15 +49,25 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 	}
 	
-	private int queryMaxScore(Map<String,Object> data){
+	private List<Integer> queryMaxScore(Map<String,Object> data){
 		
 		String sql = PropUtils.getSql("GameInfoService.queryMaxScore");
-		return commonDao.queryForInt(sql,data);
+		List<Map<String,Object>> ret = commonDao.queryForList(sql,data);
+		List<Integer> scores = new ArrayList<Integer>(2);
+		scores.add((int)(ret.get(0).get("MAX_SCORE")));
+		scores.add((int)(ret.get(1).get("MAX_SCORE")));
+		return scores;
 	}
 	
-	private int updateMaxScore(Map<String,Object> data){
+	private int updatePersonalMaxScore(Map<String,Object> data){
 		
-		String sql = PropUtils.getSql("GameInfoService.updateMaxScore");
+		String sql = PropUtils.getSql("GameInfoService.updatePersonalMaxScore");
+		return commonDao.update(sql, data);
+	}
+	
+	private int updateGameMaxScore(Map<String,Object> data){
+		
+		String sql = PropUtils.getSql("GameInfoService.updateGameMaxScore");
 		return commonDao.update(sql, data);
 	}
 	
@@ -62,8 +78,11 @@ public class GameInfoServiceImpl implements GameInfoService {
 		String sql = PropUtils.getSql("GameInfoService.getGameRank");
 		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);
 		JSONObject j = new JSONObject();
-		j.put("globalRank", ret.get(0).get("rank"));
-		j.put("friendsRank", ret.get(1).get("rank"));
+		j.put("globalRank", ret.get(0).get("cnt"));
+		j.put("globalUserCnt", ret.get(1).get("cnt"));
+		j.put("friendsRank", ret.get(2).get("cnt"));
+		j.put("friendsCnt", ret.get(3).get("cnt"));
+		j.put("kingScore", ret.get(4).get("cnt"));
 		return j;
 	}
 

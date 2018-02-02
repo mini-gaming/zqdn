@@ -27,15 +27,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Autowired
 	private CommonDao commonDao;
 
-	private int addNewUser(Map<String, Object> user) {
+	private int addOrUpdateNewUser(Map<String, Object> user) {
 
-		String sql = PropUtils.getSql("UserInfoService.addNewUser");
+		String sql = PropUtils.getSql("UserInfoService.addOrUpdateUser");
 		return commonDao.insert(sql, user);
 	}
 
-	private int addUserGameMap(Map<String, Object> data) {
+	private int addOrUpdateUserGameMap(Map<String, Object> data) {
 
-		String sql = PropUtils.getSql("UserInfoService.addUserGameMap");
+		String sql = PropUtils.getSql("UserInfoService.addOrUpdateUserGameMap");
 		return commonDao.insert(sql, data);
 	}
 	
@@ -57,11 +57,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public BasicHttpResponse registerNewUser(Map<String, Object> data) {
 
 		try {
-			String checkUserSql = PropUtils.getSql("UserInfoService.checkUserInfo");
-			if(commonDao.queryForInt(checkUserSql,data) == 0){
-				addNewUser(data);
-				addUserGameMap(data);
-			}
+			addOrUpdateNewUser(data);
+			addOrUpdateUserGameMap(data);
 			buildRelationship(data);
 			return BasicHttpResponse.success();
 		} catch (Exception e) {
