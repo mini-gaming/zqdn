@@ -1,5 +1,6 @@
 package com.wxgame.zqdn.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,19 +11,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.dao.CommonDao;
 import com.wxgame.zqdn.model.BasicHttpResponse;
 import com.wxgame.zqdn.service.UserInfoService;
+import com.wxgame.zqdn.utils.HttpClientUtils;
 import com.wxgame.zqdn.utils.PropUtils;
 import static com.wxgame.zqdn.utils.SysErrorEnum.DB_INSERT_ERR;
+import static com.wxgame.zqdn.utils.SysErrorEnum.HTTP_CALL_ERR;
+import static com.wxgame.zqdn.utils.BussErrorEnum.WEIXIN_API_ERR;
 
 @Service("userInfoService")
 public class UserInfoServiceImpl implements UserInfoService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
+	
+	public static final String URL_CODETOSESSION = "https://api.weixin.qq.com/sns/jscode2session";
 
 	@Autowired
 	private CommonDao commonDao;
@@ -56,15 +63,31 @@ public class UserInfoServiceImpl implements UserInfoService {
 	@Override
 	public BasicHttpResponse registerNewUser(Map<String, Object> data) {
 
-		try {
-			addOrUpdateNewUser(data);
-			addOrUpdateUserGameMap(data);
-			buildRelationship(data);
-			return BasicHttpResponse.success();
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			return BasicHttpResponse.error(DB_INSERT_ERR.getCode(), DB_INSERT_ERR.getMsg());
-		}
+		
+			JSONObject sessionObject = codeToOpenId((String)data.get("code"));
+			if(sessionObject == null){
+				return BasicHttpResponse.error(HTTP_CALL_ERR.getCode(), HTTP_CALL_ERR.getMsg());
+			}
+			if(sessionObject.containsKey("openid")){
+				try {
+				String openId = sessionObject.getString("openid");
+				data.put("openId", openId);
+				addOrUpdateNewUser(data);
+				addOrUpdateUserGameMap(data);
+				buildRelationship(data);
+				JSONObject ret = new JSONObject();
+				ret.put("userId", openId);
+						
+				return BasicHttpResponse.successResult(ret);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					return BasicHttpResponse.error(DB_INSERT_ERR.getCode(), DB_INSERT_ERR.getMsg());
+				}
+			}else{
+				return BasicHttpResponse.error(WEIXIN_API_ERR.getCode(), WEIXIN_API_ERR.getMsg()+" : "+sessionObject.getString("errmsg"));
+			}
+			
+		
 
 	}
 
@@ -95,6 +118,22 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		JSONObject obj = JSONObject.parseObject(JSON.toJSONString(ret.get(0)));
 		return obj;
+	}
+
+	@Override
+	public JSONObject codeToOpenId(String code) {
+		
+		Assert.isTrue(!StringUtils.isEmpty(code));
+		
+		RestTemplate restTemplate = HttpClientUtils.getHttpsRestTemplate();
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("appid", PropUtils.getServiceConfig("appId"));
+		params.put("secret", PropUtils.getServiceConfig("appSecret"));
+		params.put("grant_type", PropUtils.getServiceConfig("authorization_code"));
+		params.put("js_code", PropUtils.getServiceConfig("code"));
+		
+		return restTemplate.getForObject(URL_CODETOSESSION, JSONObject.class, params);
+		
 	}
 
 }

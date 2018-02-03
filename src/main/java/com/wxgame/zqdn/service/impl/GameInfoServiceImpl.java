@@ -75,6 +75,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 	@Override
 	public JSONObject getGameRank(Map<String, Object> data) {
 		
+		data.put("openId", data.get("userId"));
 		String sql = PropUtils.getSql("GameInfoService.getGameRank");
 		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);
 		JSONObject j = new JSONObject();

@@ -15,5 +15,7 @@ public interface UserInfoService {
 	public BasicHttpResponse logout(Map<String, Object> data);
 	
 	public JSONObject getUserInfoByGame(Map<String, Object> data);
+	
+	public JSONObject codeToOpenId(String code);
 
 }
