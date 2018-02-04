@@ -1,6 +1,7 @@
 package com.wxgame.zqdn.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.dao.CommonDao;
+import com.wxgame.zqdn.dao.LocalStorage;
 import com.wxgame.zqdn.model.BasicHttpResponse;
 import com.wxgame.zqdn.service.GameInfoService;
 import com.wxgame.zqdn.utils.PropUtils;
@@ -24,6 +26,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 	
 	@Autowired
 	private CommonDao commonDao;
+	
+	@Autowired
+	private LocalStorage localStorage;
 
 	@Override
 	public BasicHttpResponse recordGameInstance(Map<String,Object> data) {
@@ -37,9 +42,11 @@ public class GameInfoServiceImpl implements GameInfoService {
 			int currScore = (int) data.get("score");
 			if(currScore>personalMax){
 				updatePersonalMaxScore(data);
+				localStorage.updateMaxScoreMap(currScore, personalMax);
 			}
 			if(currScore>gameMax){
 				updateGameMaxScore(data);
+				localStorage.updateKingScore(1, currScore);
 			}
 			return BasicHttpResponse.success();
 		} catch (Exception e) {
@@ -85,6 +92,43 @@ public class GameInfoServiceImpl implements GameInfoService {
 		j.put("friendsCnt", ret.get(3).get("cnt"));
 		j.put("kingScore", ret.get(4).get("cnt"));
 		return j;
+	}
+	
+	
+
+	@Override
+	public JSONObject getGameRankWithCache(Map<String, Object> data) {
+		
+		data.put("openId", data.get("userId"));
+		int score = (int) data.get("score");
+		String sql = PropUtils.getSql("GameInfoService.getFriendsRank");
+		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);
+		JSONObject j = new JSONObject();
+		
+		j.put("globalRank", localStorage.getGlobalRank(score));
+		j.put("globalUserCnt", localStorage.getGlobalUserCnt());
+		j.put("friendsRank", ret.get(0).get("cnt"));
+		j.put("friendsCnt", ret.get(1).get("cnt"));
+		j.put("kingScore", localStorage.getKingScore(1));
+		return j;
+	}
+
+	@Override
+	public List<Map<String, Object>> getAllMaxScoreMap(int gameId) {
+		
+		String sql = PropUtils.getSql("GameInfoService.getAllMaxScoreMap");
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("gameId", gameId);
+		List<Map<String, Object>> ret =  commonDao.queryForList(sql, params);
+
+		return ret;
+	}
+
+	@Override
+	public List<Map<String, Object>> getKingScoreMap() {
+		
+		String sql = PropUtils.getSql("GameInfoService.getKingScoreMap");
+		return commonDao.queryForList(sql);
 	}
 
 	

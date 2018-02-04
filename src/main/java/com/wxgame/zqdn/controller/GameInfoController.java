@@ -36,7 +36,7 @@ public class GameInfoController {
 	public BasicHttpResponse record(Model model, @RequestBody final Map<String,Object> data){
 		
 		logger.info(JSON.toJSONString(data));
-		JSONObject rank = gameInfoService.getGameRank(data);
+		JSONObject rank = gameInfoService.getGameRankWithCache(data);
 		taskExecutor.execute(new Runnable(){
 
 			@Override
