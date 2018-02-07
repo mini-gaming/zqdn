@@ -1,6 +1,5 @@
 package com.wxgame.zqdn.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 			int currScore = (int) data.get("score");
 			if(personalMax==0 || currScore>personalMax){
 				updatePersonalMaxScore(data);
-				localStorage.updateMaxScoreMap(gameId, currScore, personalMax);
+				localStorage.updateMaxScoreMap(gameId, personalMax, currScore);
 			}
 			if(currScore>gameMax){
 				updateGameMaxScore(data);
