@@ -42,8 +42,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	private int addOrUpdateUserGameMap(Map<String, Object> data) {
 
+		data.put("gameId", 1);
 		String sql = PropUtils.getSql("UserInfoService.addOrUpdateUserGameMap");
-		return commonDao.insert(sql, data);
+		commonDao.insert(sql, data);
+		data.put("gameId", 2);
+		commonDao.insert(sql, data);
+		return 2;
 	}
 
 	private void buildRelationship(Map<String, Object> data) {
@@ -129,14 +133,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 		Assert.isTrue(!StringUtils.isEmpty(code));
 
 		RestTemplate restTemplate = HttpClientUtils.getHttpsRestTemplate();
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("appid", PropUtils.getServiceConfig("appId"));
-		params.put("secret", PropUtils.getServiceConfig("appSecret"));
-		params.put("grant_type", PropUtils.getServiceConfig("authorization_code"));
-		params.put("js_code", PropUtils.getServiceConfig("code"));
+	
+		StringBuffer url = new StringBuffer(URL_CODETOSESSION);
+		url.append("?appid=").append(PropUtils.getServiceConfig("appId"))
+		.append("&secret=").append(PropUtils.getServiceConfig("appSecret"))
+		.append("&grant_type=authorization_code&js_code=").append(code);
 
-		String res = restTemplate.getForObject(URL_CODETOSESSION, String.class, params);
-		logger.info(res);
+		logger.info("Call Weixin Request:\t"+url.toString());
+		String res = restTemplate.getForObject(url.toString(), String.class);
+		logger.info("Call Weixin Response:\t"+res);
 		return JSON.parseObject(res);
 	}
 

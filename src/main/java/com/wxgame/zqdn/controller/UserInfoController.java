@@ -31,7 +31,7 @@ public class UserInfoController {
 		
 		logger.info("User Register:\t"+JSON.toJSONString(data));
 		BasicHttpResponse res = userInfoSerivce.registerNewUser(data);
-		logger.debug(JSON.toJSONString(res));
+		logger.info(JSON.toJSONString(res));
 		return res;
 	}
 	

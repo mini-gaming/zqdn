@@ -46,7 +46,7 @@ public class GameInfoController {
 				
 			}}, 300000);
 		BasicHttpResponse res = BasicHttpResponse.successResult(rank);
-		logger.debug(JSON.toJSONString(res));
+		logger.info(JSON.toJSONString(res));
 		return res;
 		
 	}

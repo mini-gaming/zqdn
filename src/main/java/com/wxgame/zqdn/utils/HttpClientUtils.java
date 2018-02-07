@@ -93,7 +93,7 @@ public class HttpClientUtils {
 
 		RestTemplate restTemplate = getHttpsRestTemplate();
 		String result = restTemplate.getForObject(
-				"https://api.weixin.qq.com/sns/jscode2session?appid=wx38f356b39d453183&secret=d3c91bd2cc83d2269e66b67a9b70203f&js_code=081ySBAP1lNgX81LRgBP1tJnAP1ySBAh&grant_type=authorization_code",
+				"https://api.weixin.qq.com/sns/jscode2session?appid=wx38f356b39d453183&secret=d3c91bd2cc83d2269e66b67a9b70203f&js_code=061Ct5uN04rym52vowuN0spNtN0Ct5up&grant_type=authorization_code",
 				String.class);
 		
 		System.out.println(result);
