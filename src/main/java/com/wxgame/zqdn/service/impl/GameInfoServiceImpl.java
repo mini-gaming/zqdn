@@ -37,11 +37,10 @@ public class GameInfoServiceImpl implements GameInfoService {
 		try {
 			commonDao.insert(sql, data);
 			int gameId = (int) data.get("gameId");
-			List<Integer> scores = queryMaxScore(data);
-			int personalMax = scores.get(0);
-			int gameMax = scores.get(1);
+			int personalMax = queryPersonalMaxScore(data);
+			int gameMax = localStorage.getKingScore(gameId);
 			int currScore = (int) data.get("score");
-			if(currScore>personalMax){
+			if(personalMax==0 || currScore>personalMax){
 				updatePersonalMaxScore(data);
 				localStorage.updateMaxScoreMap(gameId, currScore, personalMax);
 			}
@@ -57,14 +56,12 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 	}
 	
-	private List<Integer> queryMaxScore(Map<String,Object> data){
+	private int queryPersonalMaxScore(Map<String,Object> data){
 		
 		String sql = PropUtils.getSql("GameInfoService.queryMaxScore");
-		List<Map<String,Object>> ret = commonDao.queryForList(sql,data);
-		List<Integer> scores = new ArrayList<Integer>(2);
-		scores.add((int)(ret.get(0).get("MAX_SCORE")));
-		scores.add((int)(ret.get(1).get("MAX_SCORE")));
-		return scores;
+		int score = commonDao.queryForInt(sql,data);
+
+		return score;
 	}
 	
 	private int updatePersonalMaxScore(Map<String,Object> data){
@@ -100,20 +97,26 @@ public class GameInfoServiceImpl implements GameInfoService {
 	@Override
 	public JSONObject getGameRankWithCache(Map<String, Object> data) {
 		
+		int time = (int) data.get("score");
 		data.put("openId", data.get("userId"));
-		data.put("score", -(int) data.get("score"));
+		data.put("score", -time);
 		int gameId = (int) data.get("gameId");
 		/*String sql = PropUtils.getSql("GameInfoService.getFriendsRank");
 		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);*/
+		int personalMax = queryPersonalMaxScore(data);
 		JSONObject j = new JSONObject();
 		
-		j.put("globalRank", localStorage.getGlobalRank(gameId, (int)data.get("score")));
-		j.put("globalUserCnt", localStorage.getGlobalUserCnt(gameId));
+		int globalUserCnt = localStorage.getGlobalUserCnt(gameId);
+		int globalRank = localStorage.getGlobalRank(gameId, -time);
+		j.put("globalRank", globalRank);
+		j.put("globalUserCnt", globalUserCnt);
 		/*j.put("friendsRank", ret.get(0).get("cnt"));
 		j.put("friendsCnt", ret.get(1).get("cnt"));*/
 		j.put("friendsRank", 1);
 		j.put("friendsCnt", 1);
 		j.put("kingScore", -localStorage.getKingScore(gameId));
+		j.put("personalMaxScore", -personalMax);
+		j.put("beatPercent", (globalUserCnt - globalRank)*1.0f/globalUserCnt);
 		return j;
 	}
 
