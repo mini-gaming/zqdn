@@ -129,8 +129,8 @@ public class LocalStorage {
 		if (!CollectionUtils.isEmpty(scores)) {
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
-				int cnt = (int) m.get("CNT");
-				game1MaxScoreMap.put(maxScore, cnt);
+				long cnt = (long) m.get("CNT");
+				game1MaxScoreMap.put(maxScore, new Long(cnt).intValue());
 			}
 		}
 	}
@@ -141,8 +141,8 @@ public class LocalStorage {
 		if (!CollectionUtils.isEmpty(scores)) {
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
-				int cnt = (int) m.get("CNT");
-				game2MaxScoreMap.put(maxScore, cnt);
+				long cnt = (long) m.get("CNT");
+				game2MaxScoreMap.put(maxScore, new Long(cnt).intValue());
 			}
 		}
 	}
