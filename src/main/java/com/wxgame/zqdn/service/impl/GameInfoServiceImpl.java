@@ -36,13 +36,14 @@ public class GameInfoServiceImpl implements GameInfoService {
 		String sql = PropUtils.getSql("GameInfoService.recordGameInstance");
 		try {
 			commonDao.insert(sql, data);
+			int gameId = (int) data.get("gameId");
 			List<Integer> scores = queryMaxScore(data);
 			int personalMax = scores.get(0);
 			int gameMax = scores.get(1);
 			int currScore = (int) data.get("score");
 			if(currScore>personalMax){
 				updatePersonalMaxScore(data);
-				localStorage.updateMaxScoreMap(currScore, personalMax);
+				localStorage.updateMaxScoreMap(gameId, currScore, personalMax);
 			}
 			if(currScore>gameMax){
 				updateGameMaxScore(data);
@@ -100,16 +101,19 @@ public class GameInfoServiceImpl implements GameInfoService {
 	public JSONObject getGameRankWithCache(Map<String, Object> data) {
 		
 		data.put("openId", data.get("userId"));
-		int score = (int) data.get("score");
-		String sql = PropUtils.getSql("GameInfoService.getFriendsRank");
-		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);
+		data.put("score", -(int) data.get("score"));
+		int gameId = (int) data.get("gameId");
+		/*String sql = PropUtils.getSql("GameInfoService.getFriendsRank");
+		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);*/
 		JSONObject j = new JSONObject();
 		
-		j.put("globalRank", localStorage.getGlobalRank(score));
-		j.put("globalUserCnt", localStorage.getGlobalUserCnt());
-		j.put("friendsRank", ret.get(0).get("cnt"));
-		j.put("friendsCnt", ret.get(1).get("cnt"));
-		j.put("kingScore", localStorage.getKingScore(1));
+		j.put("globalRank", localStorage.getGlobalRank(gameId, (int)data.get("score")));
+		j.put("globalUserCnt", localStorage.getGlobalUserCnt(gameId));
+		/*j.put("friendsRank", ret.get(0).get("cnt"));
+		j.put("friendsCnt", ret.get(1).get("cnt"));*/
+		j.put("friendsRank", 1);
+		j.put("friendsCnt", 1);
+		j.put("kingScore", -localStorage.getKingScore(gameId));
 		return j;
 	}
 

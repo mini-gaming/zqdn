@@ -24,11 +24,14 @@ public class InitializeService implements ApplicationListener<ContextRefreshedEv
 		
 		if(event.getApplicationContext().getParent() == null){
 			
-			List<Map<String, Object>> ret = gameInfoService.getAllMaxScoreMap(1);
-			localStorage.initialMaxScoreMap(ret);
+			List<Map<String, Object>> ret1 = gameInfoService.getAllMaxScoreMap(1);
+			localStorage.initialGame1MaxScoreMap(ret1);
 			
-			List<Map<String, Object>> ret1 = gameInfoService.getKingScoreMap();
-			localStorage.initialKingScore(ret1);
+			List<Map<String, Object>> ret2 = gameInfoService.getAllMaxScoreMap(2);
+			localStorage.initialGame1MaxScoreMap(ret2);
+			
+			List<Map<String, Object>> ret3 = gameInfoService.getKingScoreMap();
+			localStorage.initialKingScore(ret3);
 		}
 		
 	}

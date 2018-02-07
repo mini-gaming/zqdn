@@ -24,6 +24,7 @@ public class GameInfoController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(GameInfoController.class);
 	
+	
 	@Autowired
 	private GameInfoService gameInfoService;
 	
@@ -44,7 +45,9 @@ public class GameInfoController {
 				gameInfoService.recordGameInstance(data);
 				
 			}}, 300000);
-		return BasicHttpResponse.successResult(rank);
+		BasicHttpResponse res = BasicHttpResponse.successResult(rank);
+		logger.debug(JSON.toJSONString(res));
+		return res;
 		
 	}
 

@@ -30,7 +30,9 @@ public class UserInfoController {
 	public BasicHttpResponse register(Model model, @RequestBody Map<String,Object> data){
 		
 		logger.info("User Register:\t"+JSON.toJSONString(data));
-		return userInfoSerivce.registerNewUser(data);
+		BasicHttpResponse res = userInfoSerivce.registerNewUser(data);
+		logger.debug(JSON.toJSONString(res));
+		return res;
 	}
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)

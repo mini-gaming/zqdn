@@ -17,8 +17,20 @@ import org.springframework.util.CollectionUtils;
 public class LocalStorage {
 
 	private ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<String, String>();
+	
 
-	private SortedMap<Integer, Integer> maxScoreMap = Collections
+	private SortedMap<Integer, Integer> game1MaxScoreMap = Collections
+			.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
+
+				@Override
+				public int compare(Integer o1, Integer o2) {
+
+					return o2 - o1;
+				}
+
+			}));
+	
+	private SortedMap<Integer, Integer> game2MaxScoreMap = Collections
 			.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
 
 				@Override
@@ -30,6 +42,7 @@ public class LocalStorage {
 			}));
 
 	private ConcurrentHashMap<Integer, Integer> kingScoreMap = new ConcurrentHashMap<Integer, Integer>();
+	
 
 	public void put(String key, String val) {
 
@@ -40,8 +53,14 @@ public class LocalStorage {
 		return this.cache.get(key);
 	}
 
-	public int getGlobalRank(int score) {
+	public int getGlobalRank(int gameId, int score) {
 
+		SortedMap<Integer, Integer> maxScoreMap = null;
+		if(gameId == 1){
+			maxScoreMap = game1MaxScoreMap;
+		}else{
+			maxScoreMap = game2MaxScoreMap;
+		}
 		int rank = 1;
 		if (maxScoreMap.isEmpty()) {
 			return rank;
@@ -63,7 +82,14 @@ public class LocalStorage {
 
 	}
 
-	public int getGlobalUserCnt() {
+	public int getGlobalUserCnt(int gameId) {
+		
+		SortedMap<Integer, Integer> maxScoreMap = null;
+		if(gameId == 1){
+			maxScoreMap = game1MaxScoreMap;
+		}else{
+			maxScoreMap = game2MaxScoreMap;
+		}
 
 		int size = maxScoreMap.size();
 		if (size == 0) {
@@ -72,7 +98,14 @@ public class LocalStorage {
 		return size;
 	}
 
-	public void updateMaxScoreMap(int oldScore, int newScore) {
+	public void updateMaxScoreMap(int gameId, int oldScore, int newScore) {
+		
+		SortedMap<Integer, Integer> maxScoreMap = null;
+		if(gameId == 1){
+			maxScoreMap = game1MaxScoreMap;
+		}else{
+			maxScoreMap = game2MaxScoreMap;
+		}
 
 		if (!maxScoreMap.containsKey(oldScore)) {
 			throw new RuntimeException("MaxScoreMap cache doesn't work well");
@@ -90,13 +123,26 @@ public class LocalStorage {
 		}
 	}
 
-	public void initialMaxScoreMap(List<Map<String, Object>> scores) {
+	public void initialGame1MaxScoreMap(List<Map<String, Object>> scores) {
+		
 
 		if (!CollectionUtils.isEmpty(scores)) {
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
 				int cnt = (int) m.get("CNT");
-				maxScoreMap.put(maxScore, cnt);
+				game1MaxScoreMap.put(maxScore, cnt);
+			}
+		}
+	}
+	
+	public void initialGame2MaxScoreMap(List<Map<String, Object>> scores) {
+		
+
+		if (!CollectionUtils.isEmpty(scores)) {
+			for (Map<String, Object> m : scores) {
+				int maxScore = (int) m.get("MAX_SCORE");
+				int cnt = (int) m.get("CNT");
+				game2MaxScoreMap.put(maxScore, cnt);
 			}
 		}
 	}

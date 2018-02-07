@@ -87,4 +87,5 @@ CREATE TABLE `zqdn_game_meta` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `GAME_NAME`(`GAME_NAME`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (1,'华容道',10000);
+insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (1,'华容道3*3',-21);
+insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (2,'华容道4*4',-21);
