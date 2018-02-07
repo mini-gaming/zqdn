@@ -107,6 +107,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 		int globalUserCnt = localStorage.getGlobalUserCnt(gameId);
 		int globalRank = localStorage.getGlobalRank(gameId, -time);
+		if(-time < personalMax){
+			globalRank--;
+		}
 		j.put("globalRank", globalRank);
 		j.put("globalUserCnt", globalUserCnt);
 		/*j.put("friendsRank", ret.get(0).get("cnt"));
