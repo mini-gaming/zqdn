@@ -1,12 +1,12 @@
 package com.wxgame.zqdn.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.dao.CommonDao;
+import com.wxgame.zqdn.dao.LocalStorage;
 import com.wxgame.zqdn.model.BasicHttpResponse;
 import com.wxgame.zqdn.service.UserInfoService;
 import com.wxgame.zqdn.utils.HttpClientUtils;
@@ -28,11 +29,17 @@ import static com.wxgame.zqdn.utils.BussErrorEnum.WEIXIN_API_ERR;
 public class UserInfoServiceImpl implements UserInfoService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
+	
+	@Autowired
+	private ThreadPoolTaskExecutor taskExecutor;
 
 	public static final String URL_CODETOSESSION = "https://api.weixin.qq.com/sns/jscode2session";
 
 	@Autowired
 	private CommonDao commonDao;
+	
+	@Autowired
+	private LocalStorage localStorage;
 
 	private int addOrUpdateNewUser(Map<String, Object> user) {
 
@@ -48,6 +55,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 		data.put("gameId", 2);
 		commonDao.insert(sql, data);
 		return 2;
+	}
+	
+	private boolean containUser(Map<String, Object> data){
+		
+		String sql = PropUtils.getSql("UserInfoService.containUser");
+		int cnt = commonDao.queryForInt(sql, data);
+		if(cnt > 0){
+			return true;
+		}
+		return false;
 	}
 
 	private void buildRelationship(Map<String, Object> data) {
@@ -65,7 +82,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	}
 
 	@Override
-	public BasicHttpResponse registerNewUser(Map<String, Object> data) {
+	public BasicHttpResponse registerNewUser(final Map<String, Object> data) {
 
 		JSONObject sessionObject = codeToOpenId((String) data.get("code"));
 		if (sessionObject == null) {
@@ -80,8 +97,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 				addOrUpdateNewUser(data);
 				//2
 				addOrUpdateUserGameMap(data);
-				//3
-				buildRelationship(data);
+				
+				taskExecutor.execute(new Runnable(){
+
+					@Override
+					public void run() {
+						buildRelationship(data);
+						if(!containUser(data)){
+							localStorage.updateForNewUser();
+						}
+						
+					}}, 300000);
+				
 				JSONObject ret = new JSONObject();
 				ret.put("userId", openId);
 

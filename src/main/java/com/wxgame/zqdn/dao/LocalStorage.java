@@ -97,6 +97,27 @@ public class LocalStorage {
 		}
 		return size;
 	}
+	
+	public void updateForNewUser(){
+		synchronized (game1MaxScoreMap) {
+
+			if (game1MaxScoreMap.containsKey(0)) {
+				game1MaxScoreMap.put(0, game1MaxScoreMap.get(0) + 1);
+			} else {
+				game1MaxScoreMap.put(0, 1);
+			}
+
+		}
+		synchronized (game2MaxScoreMap) {
+
+			if (game2MaxScoreMap.containsKey(0)) {
+				game2MaxScoreMap.put(0, game2MaxScoreMap.get(0) + 1);
+			} else {
+				game2MaxScoreMap.put(0, 1);
+			}
+
+		}
+	}
 
 	public void updateMaxScoreMap(int gameId, int oldScore, int newScore) {
 		
