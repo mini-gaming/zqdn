@@ -39,7 +39,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 			int personalMax = queryPersonalMaxScore(data);
 			int gameMax = localStorage.getKingScore(gameId);
 			int currScore = (int) data.get("score");
-			if(personalMax==0 || currScore>personalMax){
+			if(currScore>personalMax){
 				updatePersonalMaxScore(data);
 				localStorage.updateMaxScoreMap(gameId, personalMax, currScore);
 			}
@@ -59,7 +59,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 		String sql = PropUtils.getSql("GameInfoService.queryMaxScore");
 		int score = commonDao.queryForInt(sql,data);
-
+		if(score == 0){
+			score = Integer.MIN_VALUE;
+		}
 		return score;
 	}
 	
@@ -109,6 +111,8 @@ public class GameInfoServiceImpl implements GameInfoService {
 		int globalRank = localStorage.getGlobalRank(gameId, -time);
 		if(-time < personalMax){
 			globalRank--;
+		}else{
+			personalMax = -time;
 		}
 		j.put("globalRank", globalRank);
 		j.put("globalUserCnt", globalUserCnt);

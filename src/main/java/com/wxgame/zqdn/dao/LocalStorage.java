@@ -101,19 +101,19 @@ public class LocalStorage {
 	public void updateForNewUser(){
 		synchronized (game1MaxScoreMap) {
 
-			if (game1MaxScoreMap.containsKey(0)) {
-				game1MaxScoreMap.put(0, game1MaxScoreMap.get(0) + 1);
+			if (game1MaxScoreMap.containsKey(Integer.MIN_VALUE)) {
+				game1MaxScoreMap.put(Integer.MIN_VALUE, game1MaxScoreMap.get(Integer.MIN_VALUE) + 1);
 			} else {
-				game1MaxScoreMap.put(0, 1);
+				game1MaxScoreMap.put(Integer.MIN_VALUE, 1);
 			}
 
 		}
 		synchronized (game2MaxScoreMap) {
 
-			if (game2MaxScoreMap.containsKey(0)) {
-				game2MaxScoreMap.put(0, game2MaxScoreMap.get(0) + 1);
+			if (game2MaxScoreMap.containsKey(Integer.MIN_VALUE)) {
+				game2MaxScoreMap.put(Integer.MIN_VALUE, game2MaxScoreMap.get(Integer.MIN_VALUE) + 1);
 			} else {
-				game2MaxScoreMap.put(0, 1);
+				game2MaxScoreMap.put(Integer.MIN_VALUE, 1);
 			}
 
 		}
@@ -127,6 +127,10 @@ public class LocalStorage {
 		}else{
 			maxScoreMap = game2MaxScoreMap;
 		}
+		
+		if(oldScore == 0){
+			oldScore = Integer.MIN_VALUE;
+		}
 
 		if (!maxScoreMap.containsKey(oldScore)) {
 			throw new RuntimeException("MaxScoreMap cache doesn't work well");
@@ -134,7 +138,7 @@ public class LocalStorage {
 
 		synchronized (maxScoreMap) {
 
-			maxScoreMap.put(oldScore, maxScoreMap.get("oldScore") - 1);
+			maxScoreMap.put(oldScore, maxScoreMap.get(oldScore) - 1);
 			if (maxScoreMap.containsKey(newScore)) {
 				maxScoreMap.put(newScore, maxScoreMap.get(newScore) + 1);
 			} else {
@@ -150,6 +154,9 @@ public class LocalStorage {
 		if (!CollectionUtils.isEmpty(scores)) {
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
+				if(maxScore == 0){
+					maxScore = Integer.MIN_VALUE;
+				}
 				long cnt = (long) m.get("CNT");
 				game1MaxScoreMap.put(maxScore, new Long(cnt).intValue());
 			}
@@ -162,6 +169,9 @@ public class LocalStorage {
 		if (!CollectionUtils.isEmpty(scores)) {
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
+				if(maxScore == 0){
+					maxScore = Integer.MIN_VALUE;
+				}
 				long cnt = (long) m.get("CNT");
 				game2MaxScoreMap.put(maxScore, new Long(cnt).intValue());
 			}
