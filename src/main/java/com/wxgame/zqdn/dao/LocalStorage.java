@@ -202,10 +202,8 @@ public class LocalStorage {
 
 	public void updateKingScore(int gameId, int score) {
 
-		if (score > getKingScore(gameId)) {
-			synchronized (kingScoreMap) {
-				kingScoreMap.put(gameId, score);
-			}
+		synchronized (kingScoreMap) {
+			kingScoreMap.put(gameId, score);
 		}
 
 	}

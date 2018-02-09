@@ -35,15 +35,11 @@ public class GameInfoServiceImpl implements GameInfoService {
 		String sql = PropUtils.getSql("GameInfoService.recordGameInstance");
 		try {
 			commonDao.insert(sql, data);
-			int gameId = (int) data.get("gameId");
 			int personalMax = (int) data.get("personalMax");
-			int gameMax = localStorage.getKingScore(gameId);
+			//int gameMax = localStorage.getKingScore(gameId);
 			int currScore = (int) data.get("score");
 			if(currScore>personalMax){
 				updatePersonalMaxScore(data);
-				
-			}
-			if(currScore>gameMax){
 				updateGameMaxScore(data);
 				
 			}
@@ -113,13 +109,14 @@ public class GameInfoServiceImpl implements GameInfoService {
 		}else{
 			localStorage.updateMaxScoreMap(gameId, personalMax, score);
 			personalMax = score;
+			if(score > kingScore){
+				localStorage.updateKingScore(gameId, score);
+				kingScore = score;
+			}
 			
 		}
 		
-		if(score > kingScore){
-			localStorage.updateKingScore(gameId, score);
-			kingScore = score;
-		}
+		
 			
 		j.put("globalRank", globalRank);
 		j.put("globalUserCnt", globalUserCnt);
@@ -127,7 +124,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 		j.put("friendsCnt", 1);
 		j.put("kingScore", -kingScore);
 		j.put("personalMaxScore", -personalMax);
-		j.put("beatPercent", (globalUserCnt - globalRank + 1)*1.0f/globalUserCnt);
+		j.put("beatPercent", (globalUserCnt - globalRank)*1.0f/(globalUserCnt-1));
 		return j;
 	}
 
