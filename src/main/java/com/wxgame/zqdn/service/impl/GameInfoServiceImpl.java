@@ -41,11 +41,11 @@ public class GameInfoServiceImpl implements GameInfoService {
 			int currScore = (int) data.get("score");
 			if(currScore>personalMax){
 				updatePersonalMaxScore(data);
-				localStorage.updateMaxScoreMap(gameId, personalMax, currScore);
+				
 			}
 			if(currScore>gameMax){
 				updateGameMaxScore(data);
-				localStorage.updateKingScore(1, currScore);
+				
 			}
 			return BasicHttpResponse.success();
 		} catch (Exception e) {
@@ -109,20 +109,29 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 		int globalUserCnt = localStorage.getGlobalUserCnt(gameId);
 		int globalRank = localStorage.getGlobalRank(gameId, -time);
+		int kingScore = -localStorage.getKingScore(gameId);
 		if(-time < personalMax){
 			globalRank--;
 		}else{
 			personalMax = -time;
+			localStorage.updateMaxScoreMap(gameId, personalMax, -time);
 		}
+		
+		if(-time > kingScore){
+			localStorage.updateKingScore(gameId, -time);
+			kingScore = -time;
+		}
+		
+		
+		
 		j.put("globalRank", globalRank);
 		j.put("globalUserCnt", globalUserCnt);
-		/*j.put("friendsRank", ret.get(0).get("cnt"));
-		j.put("friendsCnt", ret.get(1).get("cnt"));*/
+
 		j.put("friendsRank", 1);
 		j.put("friendsCnt", 1);
-		j.put("kingScore", -localStorage.getKingScore(gameId));
+		j.put("kingScore", kingScore);
 		j.put("personalMaxScore", -personalMax);
-		j.put("beatPercent", (globalUserCnt - globalRank)*1.0f/globalUserCnt);
+		j.put("beatPercent", (globalUserCnt - globalRank + 1)*1.0f/globalUserCnt);
 		return j;
 	}
 

@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
+
 @Repository("localStorage")
 public class LocalStorage {
 
@@ -42,6 +44,16 @@ public class LocalStorage {
 			}));
 
 	private ConcurrentHashMap<Integer, Integer> kingScoreMap = new ConcurrentHashMap<Integer, Integer>();
+	
+	public JSONObject toJSON(){
+		
+		JSONObject j = new JSONObject();
+		j.put("kingScoreMap", kingScoreMap);
+		j.put("33game", game1MaxScoreMap);
+		j.put("44game", game2MaxScoreMap);
+		
+		return j;
+	}
 	
 
 	public void put(String key, String val) {
