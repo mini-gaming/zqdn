@@ -36,7 +36,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 		try {
 			commonDao.insert(sql, data);
 			int gameId = (int) data.get("gameId");
-			int personalMax = queryPersonalMaxScore(data);
+			int personalMax = (int) data.get("personalMax");
 			int gameMax = localStorage.getKingScore(gameId);
 			int currScore = (int) data.get("score");
 			if(currScore>personalMax){
@@ -55,7 +55,8 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 	}
 	
-	private int queryPersonalMaxScore(Map<String,Object> data){
+	@Override
+	public int queryPersonalMaxScore(Map<String,Object> data){
 		
 		String sql = PropUtils.getSql("GameInfoService.queryMaxScore");
 		int score = commonDao.queryForInt(sql,data);
@@ -98,35 +99,33 @@ public class GameInfoServiceImpl implements GameInfoService {
 	@Override
 	public JSONObject getGameRankWithCache(Map<String, Object> data) {
 		
-		int time = (int) data.get("score");
+		/*int time = (int) data.get("score");
 		data.put("openId", data.get("userId"));
-		data.put("score", -time);
+		data.put("score", -time);*/
+		int score = (int) data.get("score");
 		int gameId = (int) data.get("gameId");
 		/*String sql = PropUtils.getSql("GameInfoService.getFriendsRank");
 		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);*/
-		int personalMax = queryPersonalMaxScore(data);
+		int personalMax = (int) data.get("personalMax");
 		JSONObject j = new JSONObject();
 		
 		int globalUserCnt = localStorage.getGlobalUserCnt(gameId);
-		int globalRank = localStorage.getGlobalRank(gameId, -time);
+		int globalRank = localStorage.getGlobalRank(gameId, score);
 		int kingScore = -localStorage.getKingScore(gameId);
-		if(-time < personalMax){
+		if(score < personalMax){
 			globalRank--;
 		}else{
-			personalMax = -time;
-			localStorage.updateMaxScoreMap(gameId, personalMax, -time);
+			personalMax = score;
+			localStorage.updateMaxScoreMap(gameId, personalMax, score);
 		}
 		
-		if(-time > kingScore){
-			localStorage.updateKingScore(gameId, -time);
-			kingScore = -time;
+		if(score > kingScore){
+			localStorage.updateKingScore(gameId, score);
+			kingScore = score;
 		}
-		
-		
-		
+			
 		j.put("globalRank", globalRank);
 		j.put("globalUserCnt", globalUserCnt);
-
 		j.put("friendsRank", 1);
 		j.put("friendsCnt", 1);
 		j.put("kingScore", kingScore);

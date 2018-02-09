@@ -17,5 +17,7 @@ public interface GameInfoService {
 	public List<Map<String, Object>> getAllMaxScoreMap(int gameId);
 	
 	public List<Map<String, Object>> getKingScoreMap();
+	
+	public int queryPersonalMaxScore(Map<String,Object> data);
 
 }

@@ -37,6 +37,11 @@ public class GameInfoController {
 	public BasicHttpResponse record(Model model, @RequestBody final Map<String,Object> data){
 		
 		logger.info(JSON.toJSONString(data));
+		int time = (int) data.get("score");
+		data.put("openId", data.get("userId"));
+		data.put("score", -time);
+		int personalMax = gameInfoService.queryPersonalMaxScore(data);
+		data.put("personalMax", personalMax);
 		JSONObject rank = gameInfoService.getGameRankWithCache(data);
 		taskExecutor.execute(new Runnable(){
 
