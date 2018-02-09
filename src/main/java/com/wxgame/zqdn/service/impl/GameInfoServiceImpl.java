@@ -115,8 +115,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 		if(score < personalMax){
 			globalRank--;
 		}else{
-			personalMax = score;
 			localStorage.updateMaxScoreMap(gameId, personalMax, score);
+			personalMax = score;
+			
 		}
 		
 		if(score > kingScore){
