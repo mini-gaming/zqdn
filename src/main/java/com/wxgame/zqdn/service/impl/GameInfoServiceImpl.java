@@ -99,13 +99,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 	@Override
 	public JSONObject getGameRankWithCache(Map<String, Object> data) {
 		
-		/*int time = (int) data.get("score");
-		data.put("openId", data.get("userId"));
-		data.put("score", -time);*/
+
 		int score = (int) data.get("score");
 		int gameId = (int) data.get("gameId");
-		/*String sql = PropUtils.getSql("GameInfoService.getFriendsRank");
-		List<Map<String,Object>> ret = commonDao.queryForList(sql, data);*/
 		int personalMax = (int) data.get("personalMax");
 		JSONObject j = new JSONObject();
 		

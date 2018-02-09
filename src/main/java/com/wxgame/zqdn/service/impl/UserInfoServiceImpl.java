@@ -93,6 +93,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 			try {
 				String openId = sessionObject.getString("openid");
 				data.put("openId", openId);
+				
+				if(!containUser(data)){
+					localStorage.updateForNewUser();
+				}
 				//1
 				addOrUpdateNewUser(data);
 				//2
@@ -103,9 +107,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 					@Override
 					public void run() {
 						buildRelationship(data);
-						if(!containUser(data)){
-							localStorage.updateForNewUser();
-						}
+						
 						
 					}}, 300000);
 				
