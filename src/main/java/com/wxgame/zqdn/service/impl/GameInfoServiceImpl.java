@@ -125,7 +125,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 		j.put("globalUserCnt", globalUserCnt);
 		j.put("friendsRank", 1);
 		j.put("friendsCnt", 1);
-		j.put("kingScore", kingScore);
+		j.put("kingScore", -kingScore);
 		j.put("personalMaxScore", -personalMax);
 		j.put("beatPercent", (globalUserCnt - globalRank + 1)*1.0f/globalUserCnt);
 		return j;

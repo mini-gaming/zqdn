@@ -107,7 +107,12 @@ public class LocalStorage {
 		if (size == 0) {
 			return 1;
 		}
-		return size;
+		int total = 0;
+		for(Integer i : maxScoreMap.values()){
+			total += i;
+		}
+			
+		return total;
 	}
 	
 	public void updateForNewUser(){
