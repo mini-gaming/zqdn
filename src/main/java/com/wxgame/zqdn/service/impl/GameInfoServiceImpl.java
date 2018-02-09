@@ -107,7 +107,7 @@ public class GameInfoServiceImpl implements GameInfoService {
 		
 		int globalUserCnt = localStorage.getGlobalUserCnt(gameId);
 		int globalRank = localStorage.getGlobalRank(gameId, score);
-		int kingScore = -localStorage.getKingScore(gameId);
+		int kingScore = localStorage.getKingScore(gameId);
 		if(score < personalMax){
 			globalRank--;
 		}else{
