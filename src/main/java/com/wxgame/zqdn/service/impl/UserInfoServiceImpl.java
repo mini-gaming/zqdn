@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -20,6 +22,7 @@ import com.wxgame.zqdn.dao.LocalStorage;
 import com.wxgame.zqdn.model.BasicHttpResponse;
 import com.wxgame.zqdn.service.UserInfoService;
 import com.wxgame.zqdn.utils.HttpClientUtils;
+import com.wxgame.zqdn.utils.MyEncoder;
 import com.wxgame.zqdn.utils.PropUtils;
 import static com.wxgame.zqdn.utils.SysErrorEnum.DB_INSERT_ERR;
 import static com.wxgame.zqdn.utils.SysErrorEnum.HTTP_CALL_ERR;
@@ -79,6 +82,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 				commonDao.insert(saveUserRelSql, data);
 			}
 		}
+		
+		String logSql = PropUtils.getSql("UserInfoService.logVisit");
+		commonDao.insert(logSql, data);
 	}
 
 	@Override
@@ -97,10 +103,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 				if(!containUser(data)){
 					localStorage.updateForNewUser();
 				}
-				//1
-				addOrUpdateNewUser(data);
-				//2
-				addOrUpdateUserGameMap(data);
+				
+				insertOrUpdateUser(data);
 				
 				taskExecutor.execute(new Runnable(){
 
@@ -125,6 +129,14 @@ public class UserInfoServiceImpl implements UserInfoService {
 			return BasicHttpResponse.error(WEIXIN_API_ERR.getCode(), errMsg);
 		}
 
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	private void insertOrUpdateUser(Map<String, Object> data) {
+		
+		addOrUpdateNewUser(data);
+		
+		addOrUpdateUserGameMap(data);
 	}
 
 	@Override
@@ -160,6 +172,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 	public JSONObject codeToOpenId(String code) {
 
 		Assert.isTrue(!StringUtils.isEmpty(code));
+		
+		String mode = PropUtils.getServiceConfig("mode");
+		if("dev".equalsIgnoreCase(mode)){
+			JSONObject _j = new JSONObject();
+			_j.put("openid", "test_"+MyEncoder.md5EncodeStr(code));
+			return _j;
+		}
 
 		RestTemplate restTemplate = HttpClientUtils.getHttpsRestTemplate();
 	
@@ -168,9 +187,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 		.append("&secret=").append(PropUtils.getServiceConfig("appSecret"))
 		.append("&grant_type=authorization_code&js_code=").append(code);
 
-		logger.info("Call Weixin Request:\t"+url.toString());
+		//logger.info("Call Weixin Request:\t"+url.toString());
 		String res = restTemplate.getForObject(url.toString(), String.class);
-		logger.info("Call Weixin Response:\t"+res);
+		logger.debug("Call Weixin Response:\t"+res);
 		return JSON.parseObject(res);
 	}
 

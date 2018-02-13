@@ -1,7 +1,9 @@
 package com.wxgame.zqdn.dao;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
@@ -20,39 +23,32 @@ public class LocalStorage {
 
 	private ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<String, String>();
 	
-
-	private SortedMap<Integer, Integer> game1MaxScoreMap = Collections
-			.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
-
-				@Override
-				public int compare(Integer o1, Integer o2) {
-
-					return o2 - o1;
-				}
-
-			}));
-	
-	private SortedMap<Integer, Integer> game2MaxScoreMap = Collections
-			.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
-
-				@Override
-				public int compare(Integer o1, Integer o2) {
-
-					return o2 - o1;
-				}
-
-			}));
+	private Map<Integer,SortedMap<Integer, Integer>> maxScoreMaps = new HashMap<Integer,SortedMap<Integer, Integer>>();
 
 	private ConcurrentHashMap<Integer, Integer> kingScoreMap = new ConcurrentHashMap<Integer, Integer>();
 	
-	public JSONObject toJSON(){
+	private List<String> idioms = new ArrayList<String>();
+	
+	public JSONObject peekMaxScoreCache(){
 		
 		JSONObject j = new JSONObject();
-		j.put("kingScoreMap", kingScoreMap);
-		j.put("33game", game1MaxScoreMap);
-		j.put("44game", game2MaxScoreMap);
+		
+		int totalUser = getGlobalUserCnt(1);
+		j.put("totalUserCnt", totalUser);
+		j.put("kingScore", kingScoreMap);
+		j.put("maxScore", maxScoreMaps);
 		
 		return j;
+	}
+	
+	public JSONObject peekIdiomsCache(){
+		
+		JSONObject j = new JSONObject();
+		j.put("idioms", idioms);
+		j.put("cnt", idioms.size());
+		return j;
+		
+		
 	}
 	
 
@@ -67,12 +63,7 @@ public class LocalStorage {
 
 	public int getGlobalRank(int gameId, int score) {
 
-		SortedMap<Integer, Integer> maxScoreMap = null;
-		if(gameId == 1){
-			maxScoreMap = game1MaxScoreMap;
-		}else{
-			maxScoreMap = game2MaxScoreMap;
-		}
+		SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(gameId);
 		int rank = 1;
 		if (maxScoreMap.isEmpty()) {
 			return rank;
@@ -96,12 +87,7 @@ public class LocalStorage {
 
 	public int getGlobalUserCnt(int gameId) {
 		
-		SortedMap<Integer, Integer> maxScoreMap = null;
-		if(gameId == 1){
-			maxScoreMap = game1MaxScoreMap;
-		}else{
-			maxScoreMap = game2MaxScoreMap;
-		}
+		SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(gameId);
 
 		int size = maxScoreMap.size();
 		if (size == 0) {
@@ -116,34 +102,28 @@ public class LocalStorage {
 	}
 	
 	public void updateForNewUser(){
-		synchronized (game1MaxScoreMap) {
+		
+		Iterator<Integer> iter = maxScoreMaps.keySet().iterator();
+		while(iter.hasNext()){
+			SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(iter.next());
+			if(maxScoreMap != null){
+				synchronized (maxScoreMap) {
 
-			if (game1MaxScoreMap.containsKey(Integer.MIN_VALUE)) {
-				game1MaxScoreMap.put(Integer.MIN_VALUE, game1MaxScoreMap.get(Integer.MIN_VALUE) + 1);
-			} else {
-				game1MaxScoreMap.put(Integer.MIN_VALUE, 1);
+					if (maxScoreMap.containsKey(Integer.MIN_VALUE)) {
+						maxScoreMap.put(Integer.MIN_VALUE, maxScoreMap.get(Integer.MIN_VALUE) + 1);
+					} else {
+						maxScoreMap.put(Integer.MIN_VALUE, 1);
+					}
+
+				}
 			}
-
 		}
-		synchronized (game2MaxScoreMap) {
-
-			if (game2MaxScoreMap.containsKey(Integer.MIN_VALUE)) {
-				game2MaxScoreMap.put(Integer.MIN_VALUE, game2MaxScoreMap.get(Integer.MIN_VALUE) + 1);
-			} else {
-				game2MaxScoreMap.put(Integer.MIN_VALUE, 1);
-			}
-
-		}
+		
 	}
 
 	public void updateMaxScoreMap(int gameId, int oldScore, int newScore) {
 		
-		SortedMap<Integer, Integer> maxScoreMap = null;
-		if(gameId == 1){
-			maxScoreMap = game1MaxScoreMap;
-		}else{
-			maxScoreMap = game2MaxScoreMap;
-		}
+		SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(gameId);
 		
 		if(oldScore == 0){
 			oldScore = Integer.MIN_VALUE;
@@ -164,35 +144,33 @@ public class LocalStorage {
 
 		}
 	}
-
-	public void initialGame1MaxScoreMap(List<Map<String, Object>> scores) {
-		
-
-		if (!CollectionUtils.isEmpty(scores)) {
-			for (Map<String, Object> m : scores) {
-				int maxScore = (int) m.get("MAX_SCORE");
-				if(maxScore == 0){
-					maxScore = Integer.MIN_VALUE;
-				}
-				long cnt = (long) m.get("CNT");
-				game1MaxScoreMap.put(maxScore, new Long(cnt).intValue());
-			}
-		}
-	}
 	
-	public void initialGame2MaxScoreMap(List<Map<String, Object>> scores) {
+	public void initialMaxScoreMap(int gameId, List<Map<String, Object>> scores){
 		
-
 		if (!CollectionUtils.isEmpty(scores)) {
+			
+			SortedMap<Integer, Integer> _map = Collections
+					.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
+
+						@Override
+						public int compare(Integer o1, Integer o2) {
+
+							return o2 - o1;
+						}
+
+					}));
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
 				if(maxScore == 0){
 					maxScore = Integer.MIN_VALUE;
 				}
 				long cnt = (long) m.get("CNT");
-				game2MaxScoreMap.put(maxScore, new Long(cnt).intValue());
+				_map.put(maxScore, new Long(cnt).intValue());
 			}
+			maxScoreMaps.put(gameId, _map);
+			
 		}
+		
 	}
 
 	public int getKingScore(int gameId) {
@@ -218,5 +196,35 @@ public class LocalStorage {
 			}
 		}
 	}
+	
+	public void updateIdioms(List<String> idioms){
+		
+		synchronized(this.idioms){
+			this.idioms.clear();
+			this.idioms.addAll(idioms);
+		}
+		
+	}
+	
+	public List<String> offerIdioms(List<Integer> idiomIndexArr){
+		
+		Assert.notNull(idiomIndexArr);
+		Assert.isTrue(idiomIndexArr.size() <= 6);
+		List<String> _idioms = new ArrayList<String>(60);
+		int _inx = 0;
+		for(int i : idiomIndexArr){
+			if(i<0 || i>99){
+				throw new RuntimeException("Invalid request parameter");
+			}
+			int fromIndex = _inx*1000+i*10;
+			int toIndex = fromIndex + 10;
+			_idioms.addAll(this.idioms.subList(fromIndex, toIndex));
+			_inx ++;
+		}
+		
+		
+		return _idioms;
+	}
+	
 
 }

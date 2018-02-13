@@ -20,6 +20,8 @@ public interface CommonDao {
 	
 	List<Map<String, Object>> queryForList(String query);
 	
+	<T> List<T> queryForListType(String query, Class<T> clazz);
+	
 	int queryForInt(NamedParameterJdbcTemplate jdbcTemplate, String query, Map<String,Object> params);
 	
 	int queryForInt(String query, Map<String,Object> params);

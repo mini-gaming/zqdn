@@ -4,6 +4,7 @@
 package com.wxgame.zqdn.dao.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,16 @@ public class CommonDaoImpl implements CommonDao {
 	public List<Map<String, Object>> queryForList(String query) {
 
 		return queryForList(zqdnJdbcTemplate, query, null);
+	}
+	
+	
+
+
+	@Override
+	public <T> List<T> queryForListType(String query, Class<T> clazz) {
+		
+		Map<String, Object> params = new HashMap<String,Object>();
+		return zqdnJdbcTemplate.queryForList(query, params, clazz);
 	}
 
 	@Override

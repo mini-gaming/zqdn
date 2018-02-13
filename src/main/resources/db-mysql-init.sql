@@ -89,3 +89,26 @@ CREATE TABLE `zqdn_game_meta` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (1,'华容道3*3',-21);
 insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (2,'华容道4*4',-21);
+
+
+ALTER TABLE zqdn_user_info CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE zqdn_user_info modify column NICKNAME varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+DROP TABLE IF EXISTS `zqdn_game_idiom_dt`;
+CREATE TABLE `zqdn_game_idiom_dt` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `IDIOM` varchar(100) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `IDIOM`(`IDIOM`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `zqdn_user_visit_log`;
+CREATE TABLE `zqdn_user_visit_log` (
+  `OPEN_ID` varchar(255) NOT NULL,
+  `VISIT_DATE` date NOT NULL,
+  `CRE_TS` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `VISIT_DATE` (`VISIT_DATE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+/*!50100 PARTITION BY HASH (DAY(VISIT_DATE))
+PARTITIONS 32 */;

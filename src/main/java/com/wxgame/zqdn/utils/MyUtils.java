@@ -1,5 +1,6 @@
 package com.wxgame.zqdn.utils;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,6 +23,19 @@ public class MyUtils {
 		}
 		return m;
 		
+	}
+	
+	public static int getWeekIndex(){
+		
+		Calendar cal = Calendar.getInstance(); 
+        int week_index = cal.get(Calendar.DAY_OF_WEEK);  
+		return week_index;
+		
+	}
+	
+	public static void main(String[] args){
+		
+		System.out.println(getWeekIndex());
 	}
 
 }

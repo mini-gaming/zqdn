@@ -21,15 +21,16 @@ public class InitializeService implements ApplicationListener<ContextRefreshedEv
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 
 		// event.getApplicationContext().getParent()
+		List<Integer> allGame = gameInfoService.getAllGameIds();
+		for(int gameId : allGame){
+			List<Map<String, Object>> ret = gameInfoService.getAllMaxScoreMap(gameId);
+			localStorage.initialMaxScoreMap(gameId, ret);
+		}
 
-		List<Map<String, Object>> ret1 = gameInfoService.getAllMaxScoreMap(1);
-		localStorage.initialGame1MaxScoreMap(ret1);
-
-		List<Map<String, Object>> ret2 = gameInfoService.getAllMaxScoreMap(2);
-		localStorage.initialGame2MaxScoreMap(ret2);
-
-		List<Map<String, Object>> ret3 = gameInfoService.getKingScoreMap();
-		localStorage.initialKingScore(ret3);
+		List<Map<String, Object>> ret1 = gameInfoService.getKingScoreMap();
+		localStorage.initialKingScore(ret1);
+		
+		gameInfoService.updateIdioms();
 
 	}
 

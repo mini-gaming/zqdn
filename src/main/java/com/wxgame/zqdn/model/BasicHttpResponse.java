@@ -1,6 +1,7 @@
 package com.wxgame.zqdn.model;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wxgame.zqdn.utils.BussErrorEnum;
 
 public class BasicHttpResponse {
 	
@@ -59,12 +60,31 @@ public class BasicHttpResponse {
 		return res;
 	}
 	
+	public static BasicHttpResponse successResult(String key, Object val){
+		
+		BasicHttpResponse res = new BasicHttpResponse();
+		res.success = true;		
+		JSONObject data = new JSONObject();
+		data.put(key, val);
+		res.setData(data);
+		return res;
+	}
+	
 	public static BasicHttpResponse error(String code, String msg){
 		
 		BasicHttpResponse res = new BasicHttpResponse();
 		res.success = false;
 		res.setErrCode(code);
 		res.setErrMsg(msg);
+		return res;
+	}
+	
+	public static BasicHttpResponse error(BussErrorEnum errorEnum){
+		
+		BasicHttpResponse res = new BasicHttpResponse();
+		res.success = false;
+		res.setErrCode(errorEnum.getCode());
+		res.setErrMsg(errorEnum.getMsg());
 		return res;
 	}
 

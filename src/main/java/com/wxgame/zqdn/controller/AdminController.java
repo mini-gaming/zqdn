@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.dao.LocalStorage;
+import com.wxgame.zqdn.service.GameInfoService;
 
 @Controller
 @RequestMapping("/admin")
@@ -18,11 +19,38 @@ public class AdminController {
 	@Autowired
 	private LocalStorage localStorage;
 	
-	@RequestMapping(value = "/cache", method = RequestMethod.GET)
+	@Autowired
+	private GameInfoService gameInfoService;
+	
+	@RequestMapping(value = "/peekMaxScore", method = RequestMethod.GET)
 	@ResponseBody
-	public JSONObject cache(Model model){
+	public JSONObject peekMaxScore(Model model){
 		
-		return localStorage.toJSON();
+		return localStorage.peekMaxScoreCache();
+		
+	}
+	
+	@RequestMapping(value = "/peekIdiom", method = RequestMethod.GET)
+	@ResponseBody
+	public JSONObject peekIdiom(Model model){
+		
+		return localStorage.peekIdiomsCache();
+		
+	}
+	
+	@RequestMapping(value = "/analysisPlay", method = RequestMethod.GET)
+	@ResponseBody
+	public JSONObject analysisPlay(Model model){
+		
+		return gameInfoService.analysisPlay();
+		
+	}
+	
+	@RequestMapping(value = "/analysisVisit", method = RequestMethod.GET)
+	@ResponseBody
+	public JSONObject analysisVisit(Model model){
+		
+		return gameInfoService.analysisVisit();
 		
 	}
 

@@ -14,10 +14,22 @@ public interface GameInfoService {
 	
 	public JSONObject getGameRankWithCache(Map<String,Object> data);
 	
+	public List<Integer> getAllGameIds();
+	
 	public List<Map<String, Object>> getAllMaxScoreMap(int gameId);
 	
 	public List<Map<String, Object>> getKingScoreMap();
 	
 	public int queryPersonalMaxScore(Map<String,Object> data);
+	
+	public List<String> readIdiom(int size);
+	
+	public void updateIdioms();
+	
+	public List<String> offerIdioms(List<Integer> idiomIndexArr);
+	
+	public JSONObject analysisPlay();
+	
+	public JSONObject analysisVisit();
 
 }
