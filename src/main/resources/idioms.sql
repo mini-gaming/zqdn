@@ -1,5 +1,5 @@
 
-insert into zqdn_game_idiom (IDIOM) VALUES
+insert into zqdn_game_idiom_dt (IDIOM) VALUES
 ('樽酒论文'),
 ('遵养时晦'),
 ('樽前月下'),
