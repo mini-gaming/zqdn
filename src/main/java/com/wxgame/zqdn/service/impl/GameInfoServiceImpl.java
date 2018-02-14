@@ -1,13 +1,11 @@
 package com.wxgame.zqdn.service.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,11 +214,10 @@ public class GameInfoServiceImpl implements GameInfoService {
 		List<String> log = new ArrayList<String>();
 		if(!CollectionUtils.isEmpty(ret)){
 			for(Map<String,Object> _r : ret){
-				Date date = (Date)_r.get("dt");
 				
-				Integer hour = (Integer)_r.get("hr");
+				String dt = (String)_r.get("dt");
 				long cnt = (long) _r.get("num");
-				log.add(DateUtils.formatDate(date, "yyyy-MM-dd")+" H"+hour+" = "+cnt);
+				log.add(dt+" = "+cnt);
 			}
 		}
 		_j.put("playGameCount", log);
@@ -235,10 +232,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 		List<String> log = new ArrayList<String>();
 		if(!CollectionUtils.isEmpty(ret)){
 			for(Map<String,Object> _r : ret){
-				Date date = (Date)_r.get("dt");
-				Integer hour = (Integer)_r.get("hr");
+				String dt = (String)_r.get("dt");
 				long cnt = (long) _r.get("num");
-				log.add(DateUtils.formatDate(date, "yyyy-MM-dd")+" H"+hour+" = "+cnt);
+				log.add(dt+" = "+cnt);
 			}
 		}
 		_j.put("loginGameCount", log);
