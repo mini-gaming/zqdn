@@ -213,15 +213,17 @@ public class GameInfoServiceImpl implements GameInfoService {
 		String sql = PropUtils.getSql("GameInfoService.analysisPlay");
 		List<Map<String, Object>> ret = commonDao.queryForList(sql);
 		JSONObject _j = new JSONObject();
+		List<String> log = new ArrayList<String>();
 		if(!CollectionUtils.isEmpty(ret)){
 			for(Map<String,Object> _r : ret){
 				Date date = (Date)_r.get("dt");
 				
 				Integer hour = (Integer)_r.get("hr");
 				long cnt = (long) _r.get("num");
-				_j.put(DateUtils.formatDate(date, "yyyy-MM-dd")+" H"+hour, cnt);
+				log.add(DateUtils.formatDate(date, "yyyy-MM-dd")+" H"+hour+" = "+cnt);
 			}
 		}
+		_j.put("playGameCount", log);
 		return _j;
 	}
 
@@ -230,14 +232,16 @@ public class GameInfoServiceImpl implements GameInfoService {
 		String sql = PropUtils.getSql("GameInfoService.analysisVisit");
 		List<Map<String, Object>> ret = commonDao.queryForList(sql);
 		JSONObject _j = new JSONObject();
+		List<String> log = new ArrayList<String>();
 		if(!CollectionUtils.isEmpty(ret)){
 			for(Map<String,Object> _r : ret){
 				Date date = (Date)_r.get("dt");
 				Integer hour = (Integer)_r.get("hr");
 				long cnt = (long) _r.get("num");
-				_j.put(DateUtils.formatDate(date, "yyyy-MM-dd")+" H"+hour, cnt);
+				log.add(DateUtils.formatDate(date, "yyyy-MM-dd")+" H"+hour+" = "+cnt);
 			}
 		}
+		_j.put("loginGameCount", log);
 		return _j;
 	}
 
