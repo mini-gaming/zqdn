@@ -97,11 +97,13 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		if (sessionObject.containsKey("openid")) {
 			try {
+				boolean isNewUser = false;
 				String openId = sessionObject.getString("openid");
 				data.put("openId", openId);
 				
 				if(!containUser(data)){
 					localStorage.updateForNewUser();
+					isNewUser = true;
 				}
 				
 				insertOrUpdateUser(data);
@@ -117,7 +119,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 				
 				JSONObject ret = new JSONObject();
 				ret.put("userId", openId);
-
+				ret.put("isNewUser", isNewUser);
 				return BasicHttpResponse.successResult(ret);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
