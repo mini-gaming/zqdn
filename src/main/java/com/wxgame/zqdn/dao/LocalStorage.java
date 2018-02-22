@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wxgame.zqdn.model.Idiom;
 
 @Repository("localStorage")
 public class LocalStorage {
@@ -27,7 +29,7 @@ public class LocalStorage {
 
 	private ConcurrentHashMap<Integer, Integer> kingScoreMap = new ConcurrentHashMap<Integer, Integer>();
 	
-	private List<String> idioms = new ArrayList<String>();
+	private List<Idiom> idioms = new ArrayList<Idiom>();
 	
 	public JSONObject peekMaxScoreCache(){
 		
@@ -197,7 +199,7 @@ public class LocalStorage {
 		}
 	}
 	
-	public void updateIdioms(List<String> idioms){
+	public void updateIdioms(List<Idiom> idioms){
 		
 		synchronized(this.idioms){
 			this.idioms.clear();
@@ -206,24 +208,19 @@ public class LocalStorage {
 		
 	}
 	
-	public List<String> offerIdioms(List<Integer> idiomIndexArr){
+	public Set<Idiom> offerIdioms(int cnt){
 		
-		Assert.notNull(idiomIndexArr);
-		Assert.isTrue(idiomIndexArr.size() <= 6);
-		List<String> _idioms = new ArrayList<String>(60);
-		int _inx = 0;
-		for(int i : idiomIndexArr){
-			if(i<0 || i>99){
-				throw new RuntimeException("Invalid request parameter");
-			}
-			int fromIndex = _inx*1000+i*10;
-			int toIndex = fromIndex + 10;
-			_idioms.addAll(this.idioms.subList(fromIndex, toIndex));
-			_inx ++;
+		Assert.isTrue(cnt == 30);
+		int pieceSize = 3, segmentSize=600;
+	    int times = cnt/pieceSize;
+	    int randomRange = segmentSize - 2;
+		Set<Idiom> ret = new HashSet<Idiom>(cnt);
+		for(int i=0;i<times;i++){
+			int start = (int) Math.floor((Math.random() * randomRange)) + i * segmentSize;
+			ret.addAll(this.idioms.subList(start, start+pieceSize));
 		}
 		
-		
-		return _idioms;
+		return ret;
 	}
 	
 

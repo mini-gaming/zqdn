@@ -30,7 +30,7 @@ public class InitializeService implements ApplicationListener<ContextRefreshedEv
 		List<Map<String, Object>> ret1 = gameInfoService.getKingScoreMap();
 		localStorage.initialKingScore(ret1);
 		
-		//gameInfoService.updateIdioms();
+		gameInfoService.updateIdioms(0);
 
 	}
 

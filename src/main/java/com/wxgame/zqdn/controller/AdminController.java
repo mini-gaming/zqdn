@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.dao.LocalStorage;
+import com.wxgame.zqdn.model.BasicHttpResponse;
 import com.wxgame.zqdn.service.GameInfoService;
 
 @Controller
@@ -51,6 +52,15 @@ public class AdminController {
 	public JSONObject analysisVisit(Model model){
 		
 		return gameInfoService.analysisVisit();
+		
+	}
+	
+	@RequestMapping(value = "/updateIdiom", method = RequestMethod.GET)
+	@ResponseBody
+	public BasicHttpResponse updateIdiom(Model model){
+		
+		 gameInfoService.updateIdioms((int)Math.random()*20);
+		 return BasicHttpResponse.success();
 		
 	}
 

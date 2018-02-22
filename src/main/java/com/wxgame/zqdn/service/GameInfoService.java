@@ -2,9 +2,11 @@ package com.wxgame.zqdn.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.model.BasicHttpResponse;
+import com.wxgame.zqdn.model.Idiom;
 
 public interface GameInfoService {
 	
@@ -22,11 +24,11 @@ public interface GameInfoService {
 	
 	public int queryPersonalMaxScore(Map<String,Object> data);
 	
-	public List<String> readIdiom(int size);
+	public List<Idiom> readIdiom(int size, int seed);
 	
-	public void updateIdioms();
+	public void updateIdioms(int seed);
 	
-	public List<String> offerIdioms(List<Integer> idiomIndexArr);
+	public Set<Idiom> offerIdioms(int cnt);
 	
 	public JSONObject analysisPlay();
 	

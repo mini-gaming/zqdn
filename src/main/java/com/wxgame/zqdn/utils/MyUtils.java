@@ -2,6 +2,7 @@ package com.wxgame.zqdn.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +58,22 @@ public class MyUtils {
 	
 	public static void main(String[] args){
 		
-		System.out.println(getWeekIndex());
+		File dir = new File("D:\\images");
+		if(!dir.isDirectory()){
+			throw new IllegalArgumentException();
+		}
+		String[] s = dir.list(new FilenameFilter(){
+
+			@Override
+			public boolean accept(File dir, String name) {
+				
+				return name.endsWith(".jpg") || name.endsWith(".JPG");
+			}
+			
+		});
+		for(String file : s){
+			System.out.println(file);
+		}
 	}
 
 }

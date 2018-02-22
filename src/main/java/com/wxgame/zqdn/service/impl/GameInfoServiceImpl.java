@@ -1,10 +1,15 @@
 package com.wxgame.zqdn.service.impl;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.wxgame.zqdn.dao.CommonDao;
 import com.wxgame.zqdn.dao.LocalStorage;
 import com.wxgame.zqdn.model.BasicHttpResponse;
+import com.wxgame.zqdn.model.Idiom;
 import com.wxgame.zqdn.service.GameInfoService;
 import com.wxgame.zqdn.utils.MyUtils;
 import com.wxgame.zqdn.utils.PropUtils;
@@ -155,16 +161,42 @@ public class GameInfoServiceImpl implements GameInfoService {
 	}
 
 	@Override
-	public List<String> readIdiom(int size) {
+	public List<Idiom> readIdiom(int size, int seed) {
 		
 		Assert.isTrue(size > 0);
-		String sql = PropUtils.getSql("GameInfoService.getIdioms");
-		List<String> ret = commonDao.queryForListType(sql, String.class);
-		int weekInx = MyUtils.getWeekIndex();
-		int threshold = 6 + weekInx;
-		int index = 0;
+		String picPath = PropUtils.getServiceConfig("picPath");
+		File picDir = new File(picPath);
+		if(!picDir.isDirectory()){
+			throw new IllegalArgumentException("Invalid picture path");
+		}
+		String[] pics = picDir.list(new FilenameFilter(){
+
+			@Override
+			public boolean accept(File dir, String name) {
+				
+				return name.endsWith(".jpg");
+			}
+			
+		});
 		
-		List<String> idioms = new ArrayList<String>(size);
+		List<String> ret = new ArrayList<String>(pics.length);
+		Set<String> optionAll = new HashSet<String>();
+		for(String pic : pics){
+			String _word = pic.replace(".jpg", "");
+			ret.add(_word);
+			optionAll.addAll(Arrays.asList(_word.split("")));
+		}
+		List<String> optionWords = new ArrayList<String>(optionAll);
+		
+		if(seed == 0){
+			seed = MyUtils.getWeekIndex();
+		}
+		
+		int threshold = 6 + seed;
+		int optionLength = optionWords.size();
+		int index = 0, optionIdex=0;
+		
+		List<Idiom> idioms = new ArrayList<Idiom>(size);
 		while(index < size && threshold>0 && !ret.isEmpty()){
 			
 			Iterator<String> iter = ret.iterator();
@@ -172,7 +204,19 @@ public class GameInfoServiceImpl implements GameInfoService {
 			while(iter.hasNext() && index < size){
 				if(_index % threshold == 0){
 					String v = iter.next();
-					idioms.add(v);
+					Idiom idiom = new Idiom();
+					idiom.setQuestion(v);
+					while(idiom.getOptions().size()<10){
+						if(optionIdex >= optionLength){
+							optionIdex = 0;
+						}
+						String _w = optionWords.get(optionIdex++);
+						if(!v.contains(_w)){
+							idiom.getOptions().add(_w);
+						}
+						
+					}
+					idioms.add(idiom);
 					index++;
 					iter.remove();
 				}
@@ -182,13 +226,13 @@ public class GameInfoServiceImpl implements GameInfoService {
 			
 		}
 		return idioms;
-	}
+	} 
 
 	@Override
-	public void updateIdioms() {
+	public void updateIdioms(int seed) {
 		
 		logger.info("Refresh idioms in cache");
-		List<String> idioms = readIdiom(PropUtils.getServiceConfigAsInt("idiomSize"));
+		List<Idiom> idioms = readIdiom(PropUtils.getServiceConfigAsInt("idiomSize"),seed);
 		localStorage.updateIdioms(idioms);
 	}
 
@@ -200,9 +244,9 @@ public class GameInfoServiceImpl implements GameInfoService {
 	}
 
 	@Override
-	public List<String> offerIdioms(List<Integer> idiomIndexArr) {
+	public Set<Idiom> offerIdioms(int cnt) {
 		
-		return localStorage.offerIdioms(idiomIndexArr);
+		return localStorage.offerIdioms(cnt);
 	}
 
 	@Override

@@ -12,7 +12,7 @@ public class ScheduleTaskService {
 	//@Scheduled(cron = "0 0 2 * * ?")
 	public void updateIdioms(){
 		
-		gameInfoService.updateIdioms();
+		gameInfoService.updateIdioms(0);
 		
 	}
 	
