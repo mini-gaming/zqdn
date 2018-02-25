@@ -101,6 +101,7 @@ public class GameInfoController {
 	@ResponseBody
 	public BasicHttpResponse idiom(Model model){
 		
+		logger.info("Get idiom");
 		BasicHttpResponse res;
 		try {
 			Set<Idiom> idioms = gameInfoService.offerIdioms(30);

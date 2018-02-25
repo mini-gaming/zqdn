@@ -32,6 +32,8 @@ public interface CommonDao {
 	
 	int insert(String sql, Map<String,Object> params);
 	
+	int insert(String sql);
+	
 	int delete(NamedParameterJdbcTemplate jdbcTemplate, String sql, Map<String,Object> params);
 	
 	int delete(String sql, Map<String,Object> params);

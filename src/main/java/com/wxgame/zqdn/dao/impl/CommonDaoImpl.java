@@ -53,8 +53,6 @@ public class CommonDaoImpl implements CommonDao {
 		return queryForList(zqdnJdbcTemplate, query, null);
 	}
 	
-	
-
 
 	@Override
 	public <T> List<T> queryForListType(String query, Class<T> clazz) {
@@ -120,6 +118,12 @@ public class CommonDaoImpl implements CommonDao {
 	public int update(String sql, Map<String, Object> params) {
 		
 		return zqdnJdbcTemplate.update(sql, params);
+	}
+
+	@Override
+	public int insert(String sql) {
+		
+		return insert(sql, new HashMap<String,Object>());
 	}
 
 }

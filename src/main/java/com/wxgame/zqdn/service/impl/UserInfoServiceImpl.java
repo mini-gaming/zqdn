@@ -49,6 +49,18 @@ public class UserInfoServiceImpl implements UserInfoService {
 		String sql = PropUtils.getSql("UserInfoService.addOrUpdateUser");
 		return commonDao.insert(sql, user);
 	}
+	
+	private int addNewUser(Map<String, Object> user) {
+
+		String sql = PropUtils.getSql("UserInfoService.addNewUser");
+		return commonDao.insert(sql, user);
+	}
+	
+	private int updateUser(Map<String, Object> user) {
+
+		String sql = PropUtils.getSql("UserInfoService.updateUser");
+		return commonDao.insert(sql, user);
+	}
 
 	private int addOrUpdateUserGameMap(Map<String, Object> data) {
 
@@ -59,9 +71,50 @@ public class UserInfoServiceImpl implements UserInfoService {
 			
 			commonDao.insert(sql, data);
 		}
-		//data.put("gameId", 2);
-		//commonDao.insert(sql, data);
+
 		return 2;
+	}
+	
+	private int addNewUserGameMap(Map<String, Object> data) {
+
+		List<Integer> allGameIds = localStorage.getAllGameIds();
+		String sql = PropUtils.getSql("UserInfoService.addNewUserGameMap");
+		StringBuffer sb = new StringBuffer(sql+" ");
+		String openId = (String) data.get("openId");
+		int channel = (int) data.get("channel");
+		String rcmndOpenId = (String) data.get("rcmndOpenId");
+		int authUserInfo = (int) data.get("authUserInfo");
+		int authUserLocation = (int) data.get("authUserLocation");
+		int authAddress = (int) data.get("authAddress");
+		int authInvoiceTitle = (int) data.get("authInvoiceTitle");
+		int authWeRun = (int) data.get("authWeRun");
+		int authRecord = (int) data.get("authRecord");
+		int authWritePhotosAlbum = (int) data.get("authWritePhotosAlbum");
+		int authCamera = (int) data.get("authCamera");
+		for(Integer gameId : allGameIds){
+			
+			sb.append("('").append(openId).append("',")
+			.append(gameId).append(",")
+			.append(channel).append(",")
+			.append("'").append(rcmndOpenId).append("',")
+			.append(authUserInfo).append(",")
+			.append(authUserLocation).append(",")
+			.append(authAddress).append(",")
+			.append(authInvoiceTitle).append(",")
+			.append(authWeRun).append(",")
+			.append(authRecord).append(",")
+			.append(authWritePhotosAlbum).append(",")
+			.append(authCamera).append("),");
+			
+		}
+		sql = sb.substring(0, sb.length()-1);
+		return commonDao.insert(sql);
+	}
+	
+	private int updateUserGameMap(Map<String, Object> data) {
+
+		String sql = PropUtils.getSql("UserInfoService.updateUserGameMap");
+		return commonDao.update(sql, data);
 	}
 	
 	private boolean containUser(Map<String, Object> data){
@@ -101,23 +154,26 @@ public class UserInfoServiceImpl implements UserInfoService {
 		}
 		if (sessionObject.containsKey("openid")) {
 			try {
-				boolean isNewUser = false;
+				
 				String openId = sessionObject.getString("openid");
 				data.put("openId", openId);
-				
-				if(!containUser(data)){
+				final boolean isNewUser = !containUser(data);
+				if(isNewUser){
 					localStorage.updateForNewUser();
-					isNewUser = true;
+					insertNewUser(data);
 				}
 				
-				insertOrUpdateUser(data);
+				//insertOrUpdateUser(data);
 				
 				taskExecutor.execute(new Runnable(){
 
 					@Override
 					public void run() {
-						buildRelationship(data);
 						
+						if(!isNewUser){
+							updateExistingUser(data);
+						}
+						buildRelationship(data);
 						
 					}}, 300000);
 				
@@ -143,6 +199,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 		addOrUpdateNewUser(data);
 		
 		addOrUpdateUserGameMap(data);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	private void insertNewUser(Map<String, Object> data) {
+		
+		addNewUser(data);
+		addNewUserGameMap(data);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	private void updateExistingUser(Map<String, Object> data) {
+		
+		updateUser(data);
+		updateUserGameMap(data);
 	}
 
 	@Override
