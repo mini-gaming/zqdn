@@ -131,14 +131,14 @@ public class GameInfoServiceImpl implements GameInfoService {
 		}
 		
 		
-			
+		float beatPercent = globalUserCnt > 1 ? (globalUserCnt - globalRank)*1.0f/(globalUserCnt-1) : 1.0f;
 		j.put("globalRank", globalRank);
 		j.put("globalUserCnt", globalUserCnt);
 		j.put("friendsRank", 1);
 		j.put("friendsCnt", 1);
-		j.put("kingScore", -kingScore);
-		j.put("personalMaxScore", -personalMax);
-		j.put("beatPercent", (globalUserCnt - globalRank)*1.0f/(globalUserCnt-1));
+		j.put("kingScore", kingScore);
+		j.put("personalMaxScore", personalMax);
+		j.put("beatPercent", beatPercent);
 		return j;
 	}
 

@@ -22,6 +22,7 @@ public class InitializeService implements ApplicationListener<ContextRefreshedEv
 
 		// event.getApplicationContext().getParent()
 		List<Integer> allGame = gameInfoService.getAllGameIds();
+		localStorage.initAllGameIds(allGame);
 		for(int gameId : allGame){
 			List<Map<String, Object>> ret = gameInfoService.getAllMaxScoreMap(gameId);
 			localStorage.initialMaxScoreMap(gameId, ret);

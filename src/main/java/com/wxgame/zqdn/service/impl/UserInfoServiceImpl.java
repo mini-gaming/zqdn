@@ -52,11 +52,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 	private int addOrUpdateUserGameMap(Map<String, Object> data) {
 
-		data.put("gameId", 1);
+		List<Integer> allGameIds = localStorage.getAllGameIds();
 		String sql = PropUtils.getSql("UserInfoService.addOrUpdateUserGameMap");
-		commonDao.insert(sql, data);
-		data.put("gameId", 2);
-		commonDao.insert(sql, data);
+		for(Integer gameId : allGameIds){
+			data.put("gameId", gameId);
+			
+			commonDao.insert(sql, data);
+		}
+		//data.put("gameId", 2);
+		//commonDao.insert(sql, data);
 		return 2;
 	}
 	

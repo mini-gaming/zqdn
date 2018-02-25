@@ -2,15 +2,19 @@ package com.wxgame.zqdn.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.springframework.util.Assert;
 
@@ -58,21 +62,25 @@ public class MyUtils {
 	
 	public static void main(String[] args){
 		
-		File dir = new File("D:\\images");
-		if(!dir.isDirectory()){
-			throw new IllegalArgumentException();
-		}
-		String[] s = dir.list(new FilenameFilter(){
+		SortedMap<Integer, Integer> maxScoreMap = Collections
+				.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
 
-			@Override
-			public boolean accept(File dir, String name) {
-				
-				return name.endsWith(".jpg") || name.endsWith(".JPG");
-			}
-			
-		});
-		for(String file : s){
-			System.out.println(file);
+					@Override
+					public int compare(Integer o1, Integer o2) {
+
+						return o2.compareTo(o1);
+					}
+
+				}));
+		maxScoreMap.put(-4, 1);
+		maxScoreMap.put(-255, 1);
+		maxScoreMap.put(-123, 1);
+		Set<Integer> keys = maxScoreMap.keySet();
+
+		Iterator<Integer> iter = keys.iterator();
+		while (iter.hasNext()) {
+			int maxScore = iter.next();
+			System.out.println(maxScore);
 		}
 	}
 

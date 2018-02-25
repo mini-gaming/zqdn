@@ -89,6 +89,7 @@ CREATE TABLE `zqdn_game_meta` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (1,'华容道3*3',-21);
 insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (2,'华容道4*4',-21);
+insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (3,'字体迷宫',10);
 
 
 ALTER TABLE zqdn_user_info CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -112,3 +113,34 @@ CREATE TABLE `zqdn_user_visit_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 /*!50100 PARTITION BY HASH (DAY(VISIT_DATE))
 PARTITIONS 32 */;
+
+/*Add a new game*/
+insert into zqdn_game_meta (ID,GAME_NAME,MAX_SCORE) values (#{gameId},'字体迷宫',10);
+insert into zqdn_user_game_map (
+OPEN_ID,
+GAME_ID,
+CHANNEL,
+RCMND_OPEN_ID,
+AUTH_USER_INFO,
+AUTH_USER_LOCATION,
+AUTH_ADDRESS,
+AUTH_INVOICE_TITLE,
+AUTH_WE_RUN,
+AUTH_RECORD,
+AUTH_WRITE_PHOTOS_ALBUM,
+AUTH_CAMERA)
+(select 
+OPEN_ID,
+#{gameId},
+CHANNEL,
+RCMND_OPEN_ID,
+AUTH_USER_INFO,
+AUTH_USER_LOCATION,
+AUTH_ADDRESS,
+AUTH_INVOICE_TITLE,
+AUTH_WE_RUN,
+AUTH_RECORD,
+AUTH_WRITE_PHOTOS_ALBUM,
+AUTH_CAMERA
+from zqdn_user_game_map 
+where GAME_ID = 1);

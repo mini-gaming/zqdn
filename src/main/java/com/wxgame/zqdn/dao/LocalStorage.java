@@ -24,35 +24,44 @@ import com.wxgame.zqdn.model.Idiom;
 public class LocalStorage {
 
 	private ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<String, String>();
-	
-	private Map<Integer,SortedMap<Integer, Integer>> maxScoreMaps = new HashMap<Integer,SortedMap<Integer, Integer>>();
+
+	private Map<Integer, SortedMap<Integer, Integer>> maxScoreMaps = new HashMap<Integer, SortedMap<Integer, Integer>>();
 
 	private ConcurrentHashMap<Integer, Integer> kingScoreMap = new ConcurrentHashMap<Integer, Integer>();
-	
+
+	private final List<Integer> allGameIds = new ArrayList<Integer>();
+
 	private List<Idiom> idioms = new ArrayList<Idiom>();
-	
-	public JSONObject peekMaxScoreCache(){
-		
+
+	public JSONObject peekMaxScoreCache() {
+
 		JSONObject j = new JSONObject();
-		
+
 		int totalUser = getGlobalUserCnt(1);
 		j.put("totalUserCnt", totalUser);
 		j.put("kingScore", kingScoreMap);
 		j.put("maxScore", maxScoreMaps);
-		
+
 		return j;
 	}
-	
-	public JSONObject peekIdiomsCache(){
-		
+
+	public JSONObject peekIdiomsCache() {
+
 		JSONObject j = new JSONObject();
 		j.put("idioms", idioms);
 		j.put("cnt", idioms.size());
 		return j;
-		
-		
+
 	}
-	
+
+	public List<Integer> getAllGameIds() {
+
+		return allGameIds;
+	}
+
+	public void initAllGameIds(List<Integer> gameIds) {
+		allGameIds.addAll(gameIds);
+	}
 
 	public void put(String key, String val) {
 
@@ -88,7 +97,7 @@ public class LocalStorage {
 	}
 
 	public int getGlobalUserCnt(int gameId) {
-		
+
 		SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(gameId);
 
 		int size = maxScoreMap.size();
@@ -96,19 +105,19 @@ public class LocalStorage {
 			return 1;
 		}
 		int total = 0;
-		for(Integer i : maxScoreMap.values()){
+		for (Integer i : maxScoreMap.values()) {
 			total += i;
 		}
-			
+
 		return total;
 	}
-	
-	public void updateForNewUser(){
-		
+
+	public void updateForNewUser() {
+
 		Iterator<Integer> iter = maxScoreMaps.keySet().iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(iter.next());
-			if(maxScoreMap != null){
+			if (maxScoreMap != null) {
 				synchronized (maxScoreMap) {
 
 					if (maxScoreMap.containsKey(Integer.MIN_VALUE)) {
@@ -120,19 +129,19 @@ public class LocalStorage {
 				}
 			}
 		}
-		
+
 	}
 
 	public void updateMaxScoreMap(int gameId, int oldScore, int newScore) {
-		
+
 		SortedMap<Integer, Integer> maxScoreMap = maxScoreMaps.get(gameId);
-		
-		if(oldScore == 0){
+
+		if (oldScore == 0) {
 			oldScore = Integer.MIN_VALUE;
 		}
 
 		if (!maxScoreMap.containsKey(oldScore)) {
-			throw new RuntimeException("MaxScoreMap cache doesn't work well");
+			maxScoreMap.put(oldScore, 1);
 		}
 
 		synchronized (maxScoreMap) {
@@ -146,33 +155,31 @@ public class LocalStorage {
 
 		}
 	}
-	
-	public void initialMaxScoreMap(int gameId, List<Map<String, Object>> scores){
-		
+
+	public void initialMaxScoreMap(int gameId, List<Map<String, Object>> scores) {
+
+		SortedMap<Integer, Integer> _map = Collections
+				.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+
+						return o2.compareTo(o1);
+					}
+
+				}));
 		if (!CollectionUtils.isEmpty(scores)) {
-			
-			SortedMap<Integer, Integer> _map = Collections
-					.synchronizedSortedMap(new TreeMap<Integer, Integer>(new Comparator<Integer>() {
-
-						@Override
-						public int compare(Integer o1, Integer o2) {
-
-							return o2 - o1;
-						}
-
-					}));
 			for (Map<String, Object> m : scores) {
 				int maxScore = (int) m.get("MAX_SCORE");
-				if(maxScore == 0){
+				if (maxScore == 0) {
 					maxScore = Integer.MIN_VALUE;
 				}
 				long cnt = (long) m.get("CNT");
 				_map.put(maxScore, new Long(cnt).intValue());
 			}
-			maxScoreMaps.put(gameId, _map);
-			
 		}
-		
+		maxScoreMaps.put(gameId, _map);
+
 	}
 
 	public int getKingScore(int gameId) {
@@ -187,9 +194,9 @@ public class LocalStorage {
 		}
 
 	}
-	
-	public void initialKingScore(List<Map<String, Object>> scores){
-		
+
+	public void initialKingScore(List<Map<String, Object>> scores) {
+
 		if (!CollectionUtils.isEmpty(scores)) {
 			for (Map<String, Object> m : scores) {
 				int gameId = (int) m.get("ID");
@@ -198,30 +205,29 @@ public class LocalStorage {
 			}
 		}
 	}
-	
-	public void updateIdioms(List<Idiom> idioms){
-		
-		synchronized(this.idioms){
+
+	public void updateIdioms(List<Idiom> idioms) {
+
+		synchronized (this.idioms) {
 			this.idioms.clear();
 			this.idioms.addAll(idioms);
 		}
-		
+
 	}
-	
-	public Set<Idiom> offerIdioms(int cnt){
-		
+
+	public Set<Idiom> offerIdioms(int cnt) {
+
 		Assert.isTrue(cnt == 30);
-		int pieceSize = 3, segmentSize=600;
-	    int times = cnt/pieceSize;
-	    int randomRange = segmentSize - 2;
+		int pieceSize = 3, segmentSize = 600;
+		int times = cnt / pieceSize;
+		int randomRange = segmentSize - 2;
 		Set<Idiom> ret = new HashSet<Idiom>(cnt);
-		for(int i=0;i<times;i++){
+		for (int i = 0; i < times; i++) {
 			int start = (int) Math.floor((Math.random() * randomRange)) + i * segmentSize;
-			ret.addAll(this.idioms.subList(start, start+pieceSize));
+			ret.addAll(this.idioms.subList(start, start + pieceSize));
 		}
-		
+
 		return ret;
 	}
-	
 
 }

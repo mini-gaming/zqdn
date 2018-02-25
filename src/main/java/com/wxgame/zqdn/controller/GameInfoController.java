@@ -65,6 +65,32 @@ public class GameInfoController {
 				gameInfoService.recordGameInstance(data);
 				
 			}}, 300000);
+		rank.put("kingScore", -rank.getIntValue("kingScore"));
+		rank.put("personalMaxScore", -rank.getIntValue("personalMaxScore"));
+		BasicHttpResponse res = BasicHttpResponse.successResult(rank);
+		logger.info(JSON.toJSONString(res));
+		return res;
+		
+	}
+	
+	@RequestMapping(value = "/score", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicHttpResponse score(Model model, @RequestBody final Map<String,Object> data){
+		
+		logger.info(JSON.toJSONString(data));
+		int score = (int) data.get("score");
+		data.put("openId", data.get("userId"));
+		data.put("score", score);
+		int personalMax = gameInfoService.queryPersonalMaxScore(data);
+		data.put("personalMax", personalMax);
+		JSONObject rank = gameInfoService.getGameRankWithCache(data);
+		taskExecutor.execute(new Runnable(){
+
+			@Override
+			public void run() {
+				gameInfoService.recordGameInstance(data);
+				
+			}}, 300000);
 		BasicHttpResponse res = BasicHttpResponse.successResult(rank);
 		logger.info(JSON.toJSONString(res));
 		return res;
